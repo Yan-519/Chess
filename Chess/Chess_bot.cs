@@ -143,7 +143,7 @@ public class Chess_bot : Chess_player_root
     private static Move get_easy_move(Piece_characteristic[,] board, Turns color,
         bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot)
 
-        => get_easy_move(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot, new(), new());
+        => get_easy_move(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot, [], []);
 
     private static Move get_easy_move(Piece_characteristic[,] board, Turns color,
         bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot,
@@ -199,7 +199,7 @@ public class Chess_bot : Chess_player_root
         bool is_king_moved_player, bool is_left_rook_moved_player, bool is_right_rook_moved_player)
 
         => get_normal_move(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot,
-            is_king_moved_player, is_left_rook_moved_player, is_right_rook_moved_player, new(), new());
+            is_king_moved_player, is_left_rook_moved_player, is_right_rook_moved_player, [], []);
 
     private static Move get_normal_move(Piece_characteristic[,] board, Turns color,
         bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot,

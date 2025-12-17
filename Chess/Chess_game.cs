@@ -8,6 +8,8 @@ public static class Chess_game
     public enum Loose_type { checkmate, draw, game_gos, time_ended, not_started };
 
 
+    public readonly static Func<Turns, Turns> reverse = color => (color == Turns.white) ? Turns.black : Turns.white;
+
     public static Piece_characteristic[,] InitializeBoard()
     {
         Piece_characteristic[,] board = new Piece_characteristic[8, 8];
@@ -45,8 +47,7 @@ public static class Chess_game
     }
 
 
-    public static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color)
-        => get_all_moves(board, color, false, false, false);
+    private static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color) => get_all_moves(board, color, false, false, false);
 
     public static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color, bool is_king_moved, bool is_left_rook_moved, bool is_right_book_moved)
     {
@@ -56,53 +57,63 @@ public static class Chess_game
         {
             for (int column = 0; column < 8; column++)
             {
-                Piece_characteristic current = board[row, column];
-
-                if (current.color != color || current.is_None())
+                if(board[row, column].color != color)
                     continue;
 
-                moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, color, is_king_moved)));
-
-                if (current.name == Piece_name.king && !is_king_moved)
-                    moves.UnionWith(get_possible_castling_positions(board, color, is_king_moved, is_left_rook_moved, is_right_book_moved).Select(p => new Move(to: p, from: current.pos)));
-
+                moves.UnionWith(get_all_moves_for(board, new(row, column), is_king_moved, is_left_rook_moved, is_right_book_moved));
             }
         }
 
         return moves;
     }
 
-    public static bool is_path_clear(Piece_characteristic[,] board, Pos[] positions)
+    public static HashSet<Move> get_all_moves_for(Piece_characteristic[,] board, Pos pos, bool is_king_moved, bool is_left_rook_moved, bool is_right_book_moved)
     {
-        foreach (Pos pos in positions)
-            if (!board[pos.row, pos.col].is_None())
-                return false;
+        if(board[pos.row, pos.col].is_None())
+            return [];
 
-        return true;
+        HashSet<Move> possible_moves = [];
+        Piece_characteristic current = board[pos.row, pos.col];
+
+        possible_moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, current.color, is_king_moved)));
+
+        if (current.name == Piece_name.king && !is_king_moved)
+            possible_moves.UnionWith(get_possible_castling_positions(board, current.color, is_king_moved, is_left_rook_moved, is_right_book_moved).Select(p => new Move(to: p, from: pos)));
+
+        return possible_moves;
     }
 
-    public static bool is_path_safe(Piece_characteristic[,] board, Pos[] positions, Turns color)
-    {
-        HashSet<Pos> attacks = get_attack_range_of(board, reverse(color));
-
-        foreach (Pos pos in positions)
-            if (attacks.Contains(pos))
-                return false;
-
-        return true;
-    }
-
-    public static bool is_able_to_castling_her(Piece_characteristic[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
-    {
-        if (is_rook_moved || board[corner.row, corner.col].name != Piece_name.rook)
-            return false;
-
-        return is_path_safe(board, is_safe, color) && is_path_clear(board, is_clear);
-    }
-
-    public static HashSet<Pos> get_possible_castling_positions(Piece_characteristic[,] board, Turns color,
+    private static HashSet<Pos> get_possible_castling_positions(Piece_characteristic[,] board, Turns color,
         bool is_king_moved, bool is_left_rook_moved, bool is_right_rook_moved)
     {
+        static bool is_able_to_castling_her(Piece_characteristic[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
+        {
+            static bool is_path_clear(Piece_characteristic[,] board, Pos[] positions)
+            {
+                foreach (Pos pos in positions)
+                    if (!board[pos.row, pos.col].is_None())
+                        return false;
+
+                return true;
+            }
+
+            static bool is_path_safe(Piece_characteristic[,] board, Pos[] positions, Turns color)
+            {
+                HashSet<Pos> attacks = get_attack_range_of(board, reverse(color));
+
+                foreach (Pos pos in positions)
+                    if (attacks.Contains(pos))
+                        return false;
+
+                return true;
+            }
+
+            if (is_rook_moved || board[corner.row, corner.col].name != Piece_name.rook)
+                return false;
+
+            return is_path_safe(board, is_safe, color) && is_path_clear(board, is_clear);
+        }
+
         if (is_left_rook_moved && is_right_rook_moved || is_king_moved)
             return [];
 
@@ -131,7 +142,7 @@ public static class Chess_game
         return possible_castling_positions;
     }
 
-    public static HashSet<Pos> get_attack_range_of(Piece_characteristic[,] board, Turns color)
+    private static HashSet<Pos> get_attack_range_of(Piece_characteristic[,] board, Turns color)
     {
         HashSet<Pos> attack_positions = [];
 
@@ -160,15 +171,13 @@ public static class Chess_game
                     return get_attack_range_of(board, reverse(color)).Contains(new(row, column));
             }
         }
-
-        //throw new Exception($"cant find {color} king");
         return true;
     }
 
     public static bool is_this_color_in_checkmate(Piece_characteristic[,] board, Turns color)
         => is_this_color_in_check(board, color) && get_all_moves(board, color).Count == 0;
 
-    public static bool is_board_contains_only(Piece_characteristic[,] board, HashSet<Piece_name> names, Turns color)
+    private static bool is_board_contains_only(Piece_characteristic[,] board, HashSet<Piece_name> names, Turns color)
     {
         for (int row = 0; row < 8; row++)
         {
@@ -202,7 +211,7 @@ public static class Chess_game
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.black) ||
              is_board_contains_only(board, [Piece_name.king], Turns.black));
 
-    public static bool is_valid_move(Piece_characteristic[,] board, Move move, Turns color, bool is_king_moved)
+    private static bool is_valid_move(Piece_characteristic[,] board, Move move, Turns color, bool is_king_moved)
         => !is_this_color_in_check(generate_future_board(board, move, is_king_moved), color);
 
     public static Move attempt_castling(Piece_characteristic new_king_pos, Turns color)
@@ -229,7 +238,7 @@ public static class Chess_game
 
     public static Piece_characteristic[,] generate_future_board(Piece_characteristic[,] board, Move move, bool is_king_moved)
     {
-        Piece_characteristic[,] future_board = new Piece_characteristic[8,8];
+        Piece_characteristic[,] future_board = new Piece_characteristic[8, 8];
 
         for (int row = 0; row < 8; row++)
             for (int column = 0; column < 8; column++)
@@ -285,8 +294,4 @@ public static class Chess_game
 
         return future_board;
     }
-
-    public static Turns reverse(Turns color)
-        => (color == Turns.white) ? Turns.black : Turns.white;
-
 }

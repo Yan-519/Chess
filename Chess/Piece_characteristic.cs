@@ -39,15 +39,11 @@ public class Piece_characteristic
     public int cost { get; private set; }
 
     public Piece_characteristic(Piece_name name, Turns color, Pos pos)
-        => (this.name, this.color, this.pos) = (name, color, pos.copy());
-
-    public Piece_characteristic(Pos pos) :
-        this(Piece_name.None, Turns.white, pos)
-    { }
-
-    public Piece_characteristic(Piece_characteristic other, Pos pos) :
-        this(other.name, other.color, pos)
-    { }
+    {
+        this.name = name;
+        this.color = color;
+        this.pos = pos.copy();
+    }
 
     public void move_to(ref Piece_characteristic to)
     {
@@ -63,14 +59,9 @@ public class Piece_characteristic
     public HashSet<Move> get_range_attack(Piece_characteristic[,] board)
         => action.get_list_of_moves(board, this.pos, this.color, true);
 
-    public Piece_characteristic copy()
-        => new(this.name, this.color, this.pos);
+    public Piece_characteristic copy() => new(this.name, this.color, this.pos);
 
-    public bool is_None()
-        => this.name == Piece_name.None;
-
-    public override string ToString()
-        => this.name.ToString();
+    public bool is_None() => this.name == Piece_name.None;
 
     public override bool Equals(object? obj)
         => obj is Piece_characteristic other && this.name == other.name && this.color == other.color && this.pos == other.pos;

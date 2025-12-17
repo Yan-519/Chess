@@ -122,10 +122,9 @@
             if (board_buttons[pos.row, pos.col].BackColor != potential)
             {
                 clean_red_from_board();
-                HashSet<Pos> red_positions = player.get_moves(pos);
                 move_pieces = pos;
 
-                foreach (Pos p in red_positions)
+                foreach (Pos p in player.get_moves(pos))
                     board_buttons[p.row, p.col].BackColor = potential;
 
                 check_for_game_end();
