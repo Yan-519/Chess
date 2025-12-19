@@ -272,7 +272,7 @@ public class Chess_bot : Chess_player_root
                     is_moved_second = bot_move_bools with { is_right_rook_moved = true };
             }
 
-            Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools); //, is_moved_second);
+            Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools);// is_moved_second, bot_moves, future_board_from_original);
             if (best_player_move.is_None())
                 continue;
 

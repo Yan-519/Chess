@@ -4,15 +4,15 @@ using static Chess_game;
 
 public class Chess_player_root(Turns player_color)
 {
-    protected Piece_characteristic[,] _board = Chess_game.InitializeBoard();
+    protected Piece_characteristic[,] _board = InitializeBoard();
 
-    protected Move_bools white_move_bools = new(false, false, false);
-    protected Move_bools black_move_bools = new(false, false, false);
+    protected Move_bools white_move_bools = new(false);
+    protected Move_bools black_move_bools = new(false);
 
     public Turns turn { get; protected set; } = Turns.white;
 
     public Turns color_of_this { get; init; } = player_color;
-    public Turns color_of_opponent { get; init; } = Chess_game.reverse(player_color);
+    public Turns color_of_opponent { get; init; } = reverse(player_color);
 
     public Loose_type end_game_type { get; protected set; } = Loose_type.game_gos;
 
@@ -27,7 +27,7 @@ public class Chess_player_root(Turns player_color)
 
         Move_bools is_moved = get_move_bools(color);
 
-        if (!Chess_game.get_all_moves(_board, color, is_moved).Contains(move))
+        if (!get_all_moves(_board, color, is_moved).Contains(move))
             return false;
 
         if (_board[move.to.row, move.to.col].is_None() && _board[move.from.row, move.from.col].name == Piece_name.pawn)
@@ -65,21 +65,21 @@ public class Chess_player_root(Turns player_color)
 
             case Piece_name.rook:
                 if (move.from.is_on(0, 0) || _board[0, 0].name != Piece_name.rook)
-                    black_move_bools = black_move_bools with { is_left_rook_moved = true };
+                    black_move_bools.is_left_rook_moved = true;
                 if (move.from.is_on(0, 7) || _board[0, 7].name != Piece_name.rook)
-                    black_move_bools = black_move_bools with { is_right_rook_moved = true };
+                    black_move_bools.is_right_rook_moved = true;
 
                 if (move.from.is_on(7, 0) || _board[7, 0].name != Piece_name.rook)
-                    white_move_bools = white_move_bools with { is_left_rook_moved = true };
+                    white_move_bools.is_left_rook_moved = true;
                 if (move.from.is_on(7, 7) || _board[7, 7].name != Piece_name.rook)
-                    white_move_bools = white_move_bools with { is_right_rook_moved = true };
+                    white_move_bools.is_right_rook_moved = true;
                 break;
 
             case Piece_name.king:
                 {
                     if (is_moved.is_king_moved) break;
 
-                    Move rook_castling_moves = Chess_game.attempt_castling(_board[move.to.row, move.to.col], color);
+                    Move rook_castling_moves = attempt_castling(_board[move.to.row, move.to.col], color);
 
                     if (!rook_castling_moves.is_None())
                     {
@@ -89,8 +89,8 @@ public class Chess_player_root(Turns player_color)
 
 
                     if (color == Turns.white)
-                        white_move_bools = new(true, true, true);
-                    else black_move_bools = new(true, true, true);
+                        white_move_bools = new(true);
+                    else black_move_bools = new(true);
 
                     break;
                 }
@@ -98,12 +98,12 @@ public class Chess_player_root(Turns player_color)
             default: break;
         }
 
-        turn = Chess_game.reverse(turn);
+        turn = reverse(turn);
 
-        if (Chess_game.is_this_color_in_checkmate(_board, turn))
+        if (is_this_color_in_checkmate(_board, turn))
             end_game_type = Loose_type.checkmate;
 
-        else if (Chess_game.is_draw(_board, turn))
+        else if (is_draw(_board, turn))
             end_game_type = Loose_type.draw;
 
         return true;

@@ -2,7 +2,14 @@
 
 public static class Chess_game
 {
-    public record Move_bools(bool is_king_moved, bool is_left_rook_moved, bool is_right_rook_moved);
+    public record struct Move_bools(bool is_king_moved, bool is_left_rook_moved, bool is_right_rook_moved)
+    {
+        public bool is_king_moved = is_king_moved;
+        public bool is_left_rook_moved = is_left_rook_moved;
+        public bool is_right_rook_moved = is_right_rook_moved;
+
+        public Move_bools(bool b) : this(b, b, b) { }
+    };
 
     public enum Piece_name { rook, knight, bishop, queen, king, pawn, None };
     public enum Turns { white, black };
@@ -48,7 +55,7 @@ public static class Chess_game
         return board;
     }
 
-    private static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color) => get_all_moves(board, color, new(false, false, false));
+    private static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color) => get_all_moves(board, color, new(false));
 
     public static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color, Move_bools move_bools)
     {
