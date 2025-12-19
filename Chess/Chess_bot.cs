@@ -1,72 +1,69 @@
 ﻿namespace Chess;
 
-using Bot_levels = Chess_game.Bot_levels;
-using Loose_type = Chess_game.Loose_type;
-using Piece_name = Chess_game.Piece_name;
-using Turns = Chess_game.Turns;
+using static Chess_game;
 
 public class Chess_bot : Chess_player_root
 {
     private static readonly Random random = new();
 
     private static readonly double[,] piece_position_modifiers = new double[8, 8]
-{
-            {-0.5, -0.4, -0.4, -0.4, -0.4, -0.4, -0.4, -0.5},
-            {-0.4, -0.2,  0.0,  0.0,  0.0,  0.0, -0.2, -0.4},
-            {-0.4,  0.0,  0.1,  0.2,  0.2,  0.1,  0.0, -0.4},
-            {-0.4,  0.0,  0.2,  0.25, 0.25, 0.2,  0.0, -0.4},
-            {-0.4,  0.0,  0.2,  0.25, 0.25, 0.2,  0.0, -0.4},
-            {-0.4,  0.0,  0.1,  0.2,  0.2,  0.1,  0.0, -0.4},
-            {-0.4, -0.2,  0.0,  0.0,  0.0,  0.0, -0.2, -0.4},
-            {-0.5, -0.4, -0.4, -0.4, -0.4, -0.4, -0.4, -0.5}
-};
+    {
+            { -0.5, -0.4, -0.4, -0.4, -0.4, -0.4, -0.4, -0.5},
+            { -0.4, -0.2,  0.0,  0.0,  0.0,  0.0, -0.2, -0.4},
+            { -0.4,  0.0,  0.1,  0.2,  0.2,  0.1,  0.0, -0.4},
+            { -0.4,  0.0,  0.2,  0.25, 0.25, 0.2,  0.0, -0.4},
+            { -0.4,  0.0,  0.2,  0.25, 0.25, 0.2,  0.0, -0.4},
+            { -0.4,  0.0,  0.1,  0.2,  0.2,  0.1,  0.0, -0.4},
+            { -0.4, -0.2,  0.0,  0.0,  0.0,  0.0, -0.2, -0.4},
+            { -0.5, -0.4, -0.4, -0.4, -0.4, -0.4, -0.4, -0.5}
+    };
 
     private static readonly double[,] king_position_modifiers = new double[8, 8]
-        {
-            {0.25, 0.2,  0.2,  0.2,  0.2,  0.2, 0.2, 0.25},
-            {0.2,  0.1,  0.0,  0.0,  0.0,  0.0, 0.1, 0.2 },
-            {0.2,  0.0, -0.2, -0.4, -0.4, -0.2, 0.0, 0.2 },
-            {0.2,  0.0, -0.4, -0.5, -0.5, -0.4, 0.0, 0.2 },
-            {0.2,  0.0, -0.4, -0.5, -0.5, -0.4, 0.0, 0.2 },
-            {0.2,  0.0, -0.2, -0.4, -0.4, -0.2, 0.0, 0.2 },
-            {0.2,  0.1,  0.0,  0.0,  0.0,  0.0, 0.1, 0.2 },
-            {0.25, 0.2,  0.2,  0.2,  0.2,  0.2, 0.2, 0.25}
-        };
+    {
+            { 0.25, 0.2,  0.2,  0.2,  0.2,  0.2, 0.2, 0.25},
+            { 0.2,  0.1,  0.0,  0.0,  0.0,  0.0, 0.1, 0.2 },
+            { 0.2,  0.0, -0.2, -0.4, -0.4, -0.2, 0.0, 0.2 },
+            { 0.2,  0.0, -0.4, -0.5, -0.5, -0.4, 0.0, 0.2 },
+            { 0.2,  0.0, -0.4, -0.5, -0.5, -0.4, 0.0, 0.2 },
+            { 0.2,  0.0, -0.2, -0.4, -0.4, -0.2, 0.0, 0.2 },
+            { 0.2,  0.1,  0.0,  0.0,  0.0,  0.0, 0.1, 0.2 },
+            { 0.25, 0.2,  0.2,  0.2,  0.2,  0.2, 0.2, 0.25}
+    };
 
     private static readonly double[,] pawn_modifiers_to_up = new double[8, 8]
     {
-        { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 },
-        { 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05 },
-        { 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10 },
-        { 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15 },
-        { 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20 },
-        { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 },
-        { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 },
-        { 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35 }
+            { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 },
+            { 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05 },
+            { 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10 },
+            { 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15 },
+            { 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20 },
+            { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 },
+            { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 },
+            { 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35 }
     };
 
     private static readonly double[,] pawn_modifiers_to_down = new double[8, 8]
     {
-        { 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35 },
-        { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 },
-        { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 },
-        { 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20 },
-        { 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15 },
-        { 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10 },
-        { 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05 },
-        { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }
+            { 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35 },
+            { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 },
+            { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 },
+            { 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20 },
+            { 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15 },
+            { 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10 },
+            { 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05 },
+            { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }
     };
 
     private static readonly double[,] rook_modifier = new double[8, 8]
     {
-        { 0    , -0.10, 0.00, 0.00, 0.00, 0.00, -0.10, 0     },
-        { -0.10, 0.05 , 0.05, 0.05, 0.05, 0.05, 0.05 , -0.10 },
-        { 0    , 0.10 , 0.10, 0.10, 0.10, 0.10, 0.10 , 0     },
-        { 0.20 , 0.20 , 0.20, 0.20, 0.20, 0.20, 0.20 , 0.20  },
-        { 0.15 , 0.15 , 0.15, 0.15, 0.15, 0.15, 0.15 , 0.15  },
-        { 0    , 0.10 , 0.10, 0.10, 0.10, 0.10, 0.10 , 0     },
-        { -0.10, 0.05 , 0.05, 0.05, 0.05, 0.05, 0.05 , -0.10 },
-        { 0    , -0.10, 0.00, 0.00, 0.00, 0.00, -0.10, 0     }
+            { 0    , -0.10, 0.00, 0.00, 0.00, 0.00, -0.10, 0     },
+            { -0.10, 0.05 , 0.05, 0.05, 0.05, 0.05, 0.05 , -0.10 },
+            { 0    , 0.10 , 0.10, 0.10, 0.10, 0.10, 0.10 , 0     },
+            { 0.20 , 0.20 , 0.20, 0.20, 0.20, 0.20, 0.20 , 0.20  },
+            { 0.15 , 0.15 , 0.15, 0.15, 0.15, 0.15, 0.15 , 0.15  },
+            { 0    , 0.10 , 0.10, 0.10, 0.10, 0.10, 0.10 , 0     },
+            { -0.10, 0.05 , 0.05, 0.05, 0.05, 0.05, 0.05 , -0.10 },
+            { 0    , -0.10, 0.00, 0.00, 0.00, 0.00, -0.10, 0     }
     };
 
     private readonly Bot_levels bot_level;
@@ -87,71 +84,56 @@ public class Chess_bot : Chess_player_root
     public Chess_bot() : base(Turns.black) => bot_level = Bot_levels.easy;
 
     private static double calculate_move_value(Piece_characteristic[,] board, Move move, Turns color, bool is_king_moved)
-        => calculate_board_value_diff(Chess_game.generate_future_board(board, move, is_king_moved), color);
+        => calculate_move_value(generate_future_board(board, move, is_king_moved), color);
 
     private static double calculate_move_value(Piece_characteristic[,] future, Turns color)
     {
-        if (Chess_game.is_this_color_in_checkmate(future, Chess_game.reverse(color)))
+        static double calculate_board_value_diff(Piece_characteristic[,] board, Turns color)
+        {
+            double score = 0;
+
+            for (int row = 0; row < 8; row++)
+            {
+                for (int column = 0; column < 8; column++)
+                {
+                    Piece_characteristic current = board[row, column];
+
+                    if (current.is_None()) continue;
+
+                    score += (current.cost + current.name switch
+                    {
+                        Piece_name.knight => king_position_modifiers[row, column],
+                        Piece_name.pawn => (color == Turns.white) ? pawn_modifiers_to_up[row, column] : pawn_modifiers_to_down[row, column],
+                        Piece_name.rook => rook_modifier[row, column],
+                        _ => piece_position_modifiers[row, column]
+                    }) * ((current.color == color) ? 1 : -1);
+                }
+            }
+            return score;
+        }
+
+        if (is_this_color_in_checkmate(future, reverse(color)))
             return double.MaxValue;
 
-        if (Chess_game.is_draw(future, Chess_game.reverse(color)))
+        if (is_draw(future, reverse(color)))
             return double.MinValue;
 
-        if (Chess_game.is_this_color_in_checkmate(future, color))
+        if (is_this_color_in_checkmate(future, color))
             return double.NegativeInfinity;
 
         return calculate_board_value_diff(future, color);
     }
 
-    private static double calculate_board_value_diff(Piece_characteristic[,] board, Turns color)
-    {
-        double score = 0;
 
-        for (int row = 0; row < 8; row++)
-        {
-            for (int column = 0; column < 8; column++)
-            {
-                Piece_characteristic current = board[row, column];
+    private static Move get_easy_move(Piece_characteristic[,] board, Turns color, Move_bools move_bools)
+        => get_easy_move(board, color, move_bools, [], []);
 
-                if (current.is_None()) continue;
-
-                int sign = (current.color == color) ? 1 : -1;
-
-                score += current.cost * sign;
-
-                switch (current.name)
-                {
-                    case Piece_name.king:
-                        score += king_position_modifiers[row, column] * sign; break;
-
-                    case Piece_name.pawn:
-                        score += ((color == Turns.white) ? pawn_modifiers_to_up[row, column] : pawn_modifiers_to_down[row, column]) * sign;
-                        break;
-
-                    case Piece_name.rook:
-                        score += rook_modifier[row, column] * sign; break;
-
-                    default:
-                        score += piece_position_modifiers[row, column] * sign; break;
-                }
-            }
-        }
-
-        return score;
-    }
-
-    private static Move get_easy_move(Piece_characteristic[,] board, Turns color,
-        bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot)
-
-        => get_easy_move(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot, [], []);
-
-    private static Move get_easy_move(Piece_characteristic[,] board, Turns color,
-        bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot,
+    private static Move get_easy_move(Piece_characteristic[,] board, Turns color, Move_bools move_bools,
         HashSet<Move> bot_moves, Dictionary<Move, Piece_characteristic[,]> future_board_from_original)
     {
         if (bot_moves.Count == 0)
         {
-            bot_moves = Chess_game.get_all_moves(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot);
+            bot_moves = get_all_moves(board, color, move_bools);
 
             if (bot_moves.Count == 0)
                 return new();
@@ -162,10 +144,10 @@ public class Chess_bot : Chess_player_root
 
             foreach (Move bot_move in bot_moves)
             {
-                Piece_characteristic[,] future_board = Chess_game.generate_future_board(board, bot_move, is_king_moved_bot);
+                Piece_characteristic[,] future_board = generate_future_board(board, bot_move, move_bools.is_king_moved);
                 future_board_from_original[bot_move] = future_board;
 
-                if (Chess_game.is_this_color_in_checkmate(future_board, Chess_game.reverse(color)))
+                if (is_this_color_in_checkmate(future_board, reverse(color)))
                     return bot_move;
             }
         }
@@ -194,21 +176,12 @@ public class Chess_bot : Chess_player_root
         return best_move;
     }
 
-    private static Move get_normal_move(Piece_characteristic[,] board, Turns color,
-        bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot,
-        bool is_king_moved_player, bool is_left_rook_moved_player, bool is_right_rook_moved_player)
-
-        => get_normal_move(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot,
-            is_king_moved_player, is_left_rook_moved_player, is_right_rook_moved_player, [], []);
-
-    private static Move get_normal_move(Piece_characteristic[,] board, Turns color,
-        bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot,
-        bool is_king_moved_player, bool is_left_rook_moved_player, bool is_right_rook_moved_player,
+    private static Move get_normal_move(Piece_characteristic[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools,
         HashSet<Move> bot_moves, Dictionary<Move, Piece_characteristic[,]> future_board_from_original)
     {
         if (bot_moves.Count == 0)
         {
-            bot_moves = Chess_game.get_all_moves(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot);
+            bot_moves = get_all_moves(board, color, bot_move_bools);
 
             if (bot_moves.Count == 0)
                 return new();
@@ -219,10 +192,10 @@ public class Chess_bot : Chess_player_root
 
             foreach (Move bot_move in bot_moves)
             {
-                Piece_characteristic[,] future_board = Chess_game.generate_future_board(board, bot_move, is_king_moved_bot);
+                Piece_characteristic[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved);
                 future_board_from_original[bot_move] = future_board;
 
-                if (Chess_game.is_this_color_in_checkmate(future_board, Chess_game.reverse(color)))
+                if (is_this_color_in_checkmate(future_board, reverse(color)))
                     return bot_move;
             }
         }
@@ -235,12 +208,11 @@ public class Chess_bot : Chess_player_root
         {
             Piece_characteristic[,] future_board_first = future_board_from_original[bot_move];
 
-            Move best_player_move = get_easy_move(future_board_first, Chess_game.reverse(color),
-                is_king_moved_player, is_left_rook_moved_player, is_right_rook_moved_player);
+            Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools);
             if (best_player_move.is_None())
                 continue;
 
-            double current_score = calculate_move_value(future_board_first, best_player_move, color, is_king_moved_bot);
+            double current_score = calculate_move_value(future_board_first, best_player_move, color, bot_move_bools.is_king_moved);
 
             if (current_score == double.MaxValue)
                 return bot_move;
@@ -253,16 +225,14 @@ public class Chess_bot : Chess_player_root
         }
 
         if (best_move.is_None())
-            return get_easy_move(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot, bot_moves, future_board_from_original);
+            return get_easy_move(board, color, bot_move_bools, bot_moves, future_board_from_original);
 
         return best_move;
     }
 
-    private static Move get_best_move(Piece_characteristic[,] board, Turns color,
-                                bool is_king_moved_bot, bool is_left_rook_moved_bot, bool is_right_rook_moved_bot,
-                                bool is_king_moved_player, bool is_left_rook_moved_player, bool is_right_rook_moved_player)
+    private static Move get_best_move(Piece_characteristic[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools)
     {
-        HashSet<Move> bot_moves = Chess_game.get_all_moves(board, color, is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot);
+        HashSet<Move> bot_moves = get_all_moves(board, color, bot_move_bools);
 
         if (bot_moves.Count == 0)
             return new();
@@ -273,10 +243,10 @@ public class Chess_bot : Chess_player_root
 
         foreach (Move bot_move in bot_moves)
         {
-            Piece_characteristic[,] future_board = Chess_game.generate_future_board(board, bot_move, is_king_moved_bot);
+            Piece_characteristic[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved);
             future_board_from_original[bot_move] = future_board;
 
-            if (Chess_game.is_this_color_in_checkmate(future_board, Chess_game.reverse(color)))
+            if (is_this_color_in_checkmate(future_board, reverse(color)))
                 return bot_move;
         }
 
@@ -288,52 +258,46 @@ public class Chess_bot : Chess_player_root
         {
             Piece_characteristic[,] future_board_first = future_board_from_original[bot_move];
 
-            bool is_king_moved_second = is_king_moved_bot,
-                is_left_rook_moved_second = is_left_rook_moved_bot,
-                is_right_rook_moved_second = is_right_rook_moved_bot;
+            Move_bools is_moved_second = bot_move_bools with { };
 
             Piece_name piece = future_board_first[bot_move.from.row, bot_move.from.col].name;
 
             if (piece == Piece_name.king)
-                is_king_moved_second = true;
+                is_moved_second = bot_move_bools with { is_king_moved = true };
             else if (piece == Piece_name.rook)
             {
                 if (bot_move.from.col == 0)
-                    is_left_rook_moved_second = true;
+                    is_moved_second = bot_move_bools with { is_left_rook_moved = true };
                 else if (bot_move.from.col == 6)
-                    is_right_rook_moved_second = true;
+                    is_moved_second = bot_move_bools with { is_right_rook_moved = true };
             }
 
-            Move best_player_move = get_easy_move(future_board_first, Chess_game.reverse(color),
-                is_king_moved_player, is_left_rook_moved_player, is_right_rook_moved_player);
-            //, is_king_moved_second, is_left_rook_moved_second, is_right_rook_moved_second);
+            Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools); //, is_moved_second);
             if (best_player_move.is_None())
                 continue;
 
-            //bool is_player_king_moved_second = is_king_moved_player,
-            //    is_player_left_rook_moved_second = is_left_rook_moved_player,
-            //    is_player_right_rook_moved_second = is_right_rook_moved_player;
-            //Piece_name player_piece = future_board_first[best_bot_move.from.row, best_bot_move.from.col].name;
+            //Move_bools is_player_moved_second = player_move_bools with { };
+
+            //Piece_name player_piece = future_board_first[best_player_move.from.row, best_player_move.from.col].name;
 
             //if (player_piece == Piece_name.king)
-            //    is_player_king_moved_second = true;
+            //    is_player_moved_second = player_move_bools with { is_king_moved = true };
             //else if (player_piece == Piece_name.rook)
             //{
-            //    if (best_bot_move.from.col == 0)
-            //        is_player_left_rook_moved_second = true;
-            //    else if (best_bot_move.from.col == 6)
-            //        is_player_right_rook_moved_second = true;
+            //    if (best_player_move.from.col == 0)
+            //        is_player_moved_second = player_move_bools with { is_left_rook_moved = true };
+            //    else if (best_player_move.from.col == 6)
+            //        is_player_moved_second = player_move_bools with { is_right_rook_moved = true };
             //}
 
 
-            Piece_characteristic[,] future_board_second = Chess_game.generate_future_board(future_board_first, best_player_move, is_king_moved_second);
+            Piece_characteristic[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved);
 
-            Move best_bot_move = get_easy_move(future_board_second, color, is_king_moved_second, is_left_rook_moved_second, is_right_rook_moved_second);
-            //, is_player_king_moved_second, is_player_left_rook_moved_second, is_player_right_rook_moved_second);
+            Move best_bot_move = get_easy_move(future_board_second, color, is_moved_second); //, is_player_moved_second);
             if (best_player_move.is_None())
                 continue;
 
-            double current_score = calculate_move_value(future_board_second, best_player_move, color, is_king_moved_second);
+            double current_score = calculate_move_value(future_board_second, best_player_move, color, is_moved_second.is_king_moved);
 
             if (current_score == double.MaxValue)
                 return bot_move;
@@ -346,10 +310,7 @@ public class Chess_bot : Chess_player_root
         }
 
         if (best_move.is_None())
-            return get_normal_move(board, color,
-                is_king_moved_bot, is_left_rook_moved_bot, is_right_rook_moved_bot,
-                is_king_moved_player, is_left_rook_moved_player, is_right_rook_moved_player,
-                bot_moves, future_board_from_original);
+            return get_normal_move(board, color, bot_move_bools, player_move_bools, bot_moves, future_board_from_original);
 
         return best_move;
     }
@@ -365,15 +326,15 @@ public class Chess_bot : Chess_player_root
             Piece_characteristic[,] temp = (Piece_characteristic[,])board.Clone();
             temp[pos_of_pawn.row, pos_of_pawn.col].name = name;
 
-            if (Chess_game.is_this_color_in_check(temp, color))
+            if (is_this_color_in_check(temp, color))
                 continue;
 
-            else if (Chess_game.is_this_color_in_check(temp, Chess_game.reverse(color)))
+            else if (is_this_color_in_check(temp, reverse(color)))
                 return name;
 
-            double current_score = calculate_board_value_diff(temp, color) - calculate_board_value_diff(temp, Chess_game.reverse(color));
-
-            Random random = new();
+            double current_score = calculate_move_value(temp, color);
+            if (current_score == double.MaxValue)
+                return name;
 
             if (current_score > best_score || (current_score == best_score && random.Next(2) == 0))
             {
@@ -404,13 +365,9 @@ public class Chess_bot : Chess_player_root
 
     public Move get_move() => bot_level switch
     {
-        Bot_levels.easy => get_easy_move(_board, color_of_this, is_king_moved_g(color_of_this), is_left_rook_moved_g(color_of_this), is_right_rook_moved_g(color_of_this)),
-        Bot_levels.normal => get_normal_move(_board, color_of_this,
-                is_king_moved_g(color_of_this), is_left_rook_moved_g(color_of_this), is_right_rook_moved_g(color_of_this),
-                is_king_moved_g(color_of_opponent), is_left_rook_moved_g(color_of_opponent), is_right_rook_moved_g(color_of_opponent)),
-        Bot_levels.hard => get_best_move(_board, color_of_this,
-                is_king_moved_g(color_of_this), is_left_rook_moved_g(color_of_this), is_right_rook_moved_g(color_of_this),
-                is_king_moved_g(color_of_opponent), is_left_rook_moved_g(color_of_opponent), is_right_rook_moved_g(color_of_opponent)),
+        Bot_levels.easy => get_easy_move(_board, color_of_this, get_move_bools(color_of_this)),
+        Bot_levels.normal => get_normal_move(_board, color_of_this, get_move_bools(color_of_this), get_move_bools(color_of_opponent), [], []),
+        Bot_levels.hard => get_best_move(_board, color_of_this, get_move_bools(color_of_this), get_move_bools(color_of_opponent)),
         _ => new(),
     };
 }

@@ -7,15 +7,15 @@
         public Pos(int row, int column)
             => (this.row, this.col) = (row, column);
 
-        public Pos() : this(-1, -1)
-        { }
+        public Pos() : this(-1, -1) { }
+
 
         public static bool operator ==(Pos a, Pos b) => a.is_on(b.row, b.col);
 
         public static bool operator !=(Pos a, Pos b) => !(a == b);
 
 
-        public bool is_None() => this.col == -1 || this.row == -1;
+        public bool is_None() => !this.isin_board_range();
 
         public bool is_on(int row, int column) => this.row == row && this.col == column;
 
@@ -27,10 +27,8 @@
 
         //public override string ToString() => $"({this.row},{this.col})";
 
-        public override bool Equals(object? obj)
-            => obj is Pos other && this == other;
+        public override bool Equals(object? obj) => obj is Pos other && this == other;
 
-        public override int GetHashCode()
-            => HashCode.Combine(this.row, this.col);
+        public override int GetHashCode() => HashCode.Combine(this.row, this.col);
     }
 }

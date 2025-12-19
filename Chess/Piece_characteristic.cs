@@ -53,11 +53,9 @@ public class Piece_characteristic
         this.name = Piece_name.None;
     }
 
-    public HashSet<Move> get_moves(Piece_characteristic[,] board)
-        => action.get_list_of_moves(board, this.pos, this.color, false);
+    public HashSet<Move> get_moves(Piece_characteristic[,] board) => action.get_list_of_moves(board, this.pos, this.color, false);
 
-    public HashSet<Move> get_range_attack(Piece_characteristic[,] board)
-        => action.get_list_of_moves(board, this.pos, this.color, true);
+    public HashSet<Move> get_range_attack(Piece_characteristic[,] board) => action.get_list_of_moves(board, this.pos, this.color, true);
 
     public Piece_characteristic copy() => new(this.name, this.color, this.pos);
 
@@ -66,6 +64,5 @@ public class Piece_characteristic
     public override bool Equals(object? obj)
         => obj is Piece_characteristic other && this.name == other.name && this.color == other.color && this.pos == other.pos;
 
-    public override int GetHashCode()
-        => HashCode.Combine(this.color, this.name, this.pos);
+    public override int GetHashCode() => HashCode.Combine(this.color, this.name, this.pos);
 }

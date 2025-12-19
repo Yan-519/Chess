@@ -10,7 +10,7 @@
         public Move(): this(new(), new())
         { }
 
-        public bool is_None() => this.from.is_None() || this.to.is_None();
+        public bool is_None() => !this.from.isin_board_range() || !this.to.isin_board_range();
 
         //public Move copy() => new(this.to.copy(), this.from.copy());
 
