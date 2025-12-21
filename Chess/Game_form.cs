@@ -12,6 +12,7 @@
 
         private readonly Color potential = Color.Red;
         private readonly Color selected = Color.Blue;
+
         private readonly Color board_color_dark = Color.DarkGreen;
         private readonly Color board_color_light = Color.White;
 
@@ -131,9 +132,8 @@
                 return;
             }
 
-            selected_move = new();
-            clean_red_from_board();
             selected_move = new(to: pos, from: move_pieces);
+            clean_red_from_board();
 
             if (player.board[move_pieces.row, move_pieces.col].name == Piece_name.pawn && (pos.row == 0 || pos.row == 7))
             {
@@ -142,45 +142,34 @@
                 new Change_pawn_window(player.turn, this).Show();
                 return;
             }
-
-            if (!player.make_move(selected_move))
-                return;
-
-            refresh_board();
-
-            if (game_type == Game_type.vz_bot && player.end_game_type == Loose_type.game_gos)
-            {
-                selected_move = bot.get_response_for(selected_move);
-
-                if (!selected_move.is_None() && player.make_bot_move(selected_move))
-                {
-                    refresh_board();
-                    clean_red_from_board();
-                }
-            }
-
-            check_for_game_end();
+            make_the_move();
         }
 
         public void after_choosing_pawn_transformation(Piece_name name)
         {
             player.change_pawn_to = name;
             set_board_enabled(true);
+            make_the_move();
+        }
 
+        private void make_the_move()
+        {
             if (!player.make_move(selected_move))
             {
                 check_for_game_end();
                 return;
             }
             refresh_board();
-            if (game_type == Game_type.vz_bot)
+            if (game_type == Game_type.vz_bot && player.end_game_type == Loose_type.game_gos)
             {
                 selected_move = bot.get_response_for(selected_move);
-                if (selected_move.is_None() || !player.make_bot_move(selected_move))
-                    return;
-                refresh_board();
-                clean_red_from_board();
+                if (!selected_move.is_None() && player.make_bot_move(selected_move))
+                {
+                    refresh_board();
+                    clean_red_from_board();
+                }
             }
+            check_for_game_end();
         }
 
         public void set_board_enabled(bool v)
@@ -208,13 +197,13 @@
         private void refresh_board()
         {
             this.Text = $"The turn of the {player.turn} player";
-            Piece_characteristic[,] board = player.board;
+            Game_cell[,] board = player.board;
 
             for (int row = 0; row < 8; row++)
             {
                 for (int column = 0; column < 8; column++)
                 {
-                    Piece_characteristic current_piece = board[row, column];
+                    Game_cell current_piece = board[row, column];
                     board_buttons[row, column].Image = get_picture(current_piece.color, current_piece.name);
                 }
             }

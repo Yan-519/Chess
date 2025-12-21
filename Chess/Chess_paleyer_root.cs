@@ -4,7 +4,7 @@ using static Chess_game;
 
 public class Chess_player_root(Turns player_color)
 {
-    protected Piece_characteristic[,] _board = InitializeBoard();
+    protected Game_cell[,] _board = InitializeBoard();
 
     protected Move_bools white_move_bools = new(false);
     protected Move_bools black_move_bools = new(false);
@@ -20,8 +20,10 @@ public class Chess_player_root(Turns player_color)
 
     protected Move_bools get_move_bools(Turns color) => (color == Turns.white) ? white_move_bools : black_move_bools;
 
-    protected bool set_move(Move move, Turns color, bool is_bot = false)
+    protected bool set_move(Move move, bool is_bot = false, bool is_opponent_color = false)
     {
+        Turns color = is_opponent_color ? color_of_opponent : turn;
+
         if (end_game_type != Loose_type.game_gos || move.is_None() || color != turn)
             return false;
 
@@ -30,13 +32,11 @@ public class Chess_player_root(Turns player_color)
         if (!get_all_moves(_board, color, is_moved).Contains(move))
             return false;
 
-        if (_board[move.to.row, move.to.col].is_None() && _board[move.from.row, move.from.col].name == Piece_name.pawn)
+        else if (_board[move.to.row, move.to.col].is_None() && _board[move.from.row, move.from.col].name == Piece_name.pawn)
         {
-            int en_passant_row = (color == Turns.white) ? 1 : -1;
-            if (new Pos(move.to.row + en_passant_row, move.to.col).isin_board_range())
-                if (_board[move.to.row + en_passant_row, move.to.col].name == Piece_name.pawn &&
-                    _board[move.to.row + en_passant_row, move.to.col].color != color)
-                    _board[move.to.row + en_passant_row, move.to.col].name = Piece_name.None;
+            Pos temp = new(move.to.row + ((color == Turns.white) ? 1 : -1), move.to.col);
+            if (temp.isin_board_range() && _board[temp.row, temp.col].name == Piece_name.pawn && _board[temp.row, temp.col].color != color)
+                _board[temp.row, temp.col].name = Piece_name.None;
         }
 
         _board[move.from.row, move.from.col].move_to(ref _board[move.to.row, move.to.col]);
@@ -45,14 +45,11 @@ public class Chess_player_root(Turns player_color)
             for (int column = 0; column < 8; column++)
                 _board[row, column].is_pawn_double_moved = false;
 
-
         switch (_board[move.to.row, move.to.col].name)
         {
             case Piece_name.pawn:
                 if (move.to.row == 0 || move.to.row == 7)
-                {
                     _board[move.to.row, move.to.col].name = is_bot ? Chess_bot.find_best_pawn_transformation(_board, move.to, color) : change_pawn_to;
-                }
                 else
                 {
                     int start_position = (color == Turns.white) ? 6 : 1;
@@ -66,12 +63,12 @@ public class Chess_player_root(Turns player_color)
             case Piece_name.rook:
                 if (move.from.is_on(0, 0) || _board[0, 0].name != Piece_name.rook)
                     black_move_bools.is_left_rook_moved = true;
-                if (move.from.is_on(0, 7) || _board[0, 7].name != Piece_name.rook)
+                else if (move.from.is_on(0, 7) || _board[0, 7].name != Piece_name.rook)
                     black_move_bools.is_right_rook_moved = true;
 
-                if (move.from.is_on(7, 0) || _board[7, 0].name != Piece_name.rook)
+                else if (move.from.is_on(7, 0) || _board[7, 0].name != Piece_name.rook)
                     white_move_bools.is_left_rook_moved = true;
-                if (move.from.is_on(7, 7) || _board[7, 7].name != Piece_name.rook)
+                else if (move.from.is_on(7, 7) || _board[7, 7].name != Piece_name.rook)
                     white_move_bools.is_right_rook_moved = true;
                 break;
 
@@ -86,7 +83,6 @@ public class Chess_player_root(Turns player_color)
                         _board[rook_castling_moves.from.row, rook_castling_moves.from.col]
                             .move_to(ref _board[rook_castling_moves.to.row, rook_castling_moves.to.col]);
                     }
-
 
                     if (color == Turns.white)
                         white_move_bools = new(true);

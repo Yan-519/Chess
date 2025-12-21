@@ -19,15 +19,14 @@ public static class Chess_game
 
     public readonly static Func<Turns, Turns> reverse = color => (color == Turns.white) ? Turns.black : Turns.white;
 
-    public static Piece_characteristic[,] InitializeBoard()
+    public static Game_cell[,] InitializeBoard()
     {
-        Piece_characteristic[,] board = new Piece_characteristic[8, 8];
+        Game_cell[,] board = new Game_cell[8, 8];
 
         Piece_name[] line_of_figures =
         [
             Piece_name.rook, Piece_name.knight, Piece_name.bishop,
-            Piece_name.queen,
-            Piece_name.king,
+            Piece_name.queen, Piece_name.king,
             Piece_name.bishop, Piece_name.knight, Piece_name.rook
         ];
 
@@ -48,16 +47,14 @@ public static class Chess_game
 
                 board[row, column] = new(current_figures, current_color_of_figure, new(row, column));
             }
-
             if (row == 1) current_color_of_figure = Turns.white;
         }
-
         return board;
     }
 
-    private static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color) => get_all_moves(board, color, new(false));
+    private static HashSet<Move> get_all_moves(Game_cell[,] board, Turns color) => get_all_moves(board, color, new(false));
 
-    public static HashSet<Move> get_all_moves(Piece_characteristic[,] board, Turns color, Move_bools move_bools)
+    public static HashSet<Move> get_all_moves(Game_cell[,] board, Turns color, Move_bools move_bools)
     {
         HashSet<Move> moves = [];
 
@@ -65,9 +62,9 @@ public static class Chess_game
         {
             for (int column = 0; column < 8; column++)
             {
-                Piece_characteristic current = board[row, column];
+                Game_cell current = board[row, column];
 
-                if (current.color != color || current.is_None())
+                if (current.color != color)
                     continue;
 
                 moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, color, move_bools.is_king_moved)));
@@ -81,11 +78,11 @@ public static class Chess_game
         return moves;
     }
 
-    public static HashSet<Pos> get_possible_castling_positions(Piece_characteristic[,] board, Turns color, Move_bools move_bools)
+    public static HashSet<Pos> get_possible_castling_positions(Game_cell[,] board, Turns color, Move_bools move_bools)
     {
-        static bool is_able_to_castling_her(Piece_characteristic[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
+        static bool is_able_to_castling_her(Game_cell[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
         {
-            static bool is_path_clear(Piece_characteristic[,] board, Pos[] positions)
+            static bool is_path_clear(Game_cell[,] board, Pos[] positions)
             {
                 foreach (Pos pos in positions)
                     if (!board[pos.row, pos.col].is_None())
@@ -94,7 +91,7 @@ public static class Chess_game
                 return true;
             }
 
-            static bool is_path_safe(Piece_characteristic[,] board, Pos[] positions, Turns color)
+            static bool is_path_safe(Game_cell[,] board, Pos[] positions, Turns color)
             {
                 HashSet<Pos> attacks = get_attack_range_of(board, reverse(color));
 
@@ -139,7 +136,7 @@ public static class Chess_game
         return possible_castling_positions;
     }
 
-    private static HashSet<Pos> get_attack_range_of(Piece_characteristic[,] board, Turns color)
+    private static HashSet<Pos> get_attack_range_of(Game_cell[,] board, Turns color)
     {
         HashSet<Pos> attack_positions = [];
 
@@ -147,7 +144,7 @@ public static class Chess_game
         {
             for (int column = 0; column < 8; column++)
             {
-                Piece_characteristic current_button = board[row, column];
+                Game_cell current_button = board[row, column];
 
                 if (current_button.color == color)
                     attack_positions.UnionWith(current_button.get_range_attack(board).Select(m => m.to));
@@ -156,13 +153,13 @@ public static class Chess_game
         return attack_positions;
     }
 
-    public static bool is_this_color_in_check(Piece_characteristic[,] board, Turns color)
+    public static bool is_this_color_in_check(Game_cell[,] board, Turns color)
     {
         for (int row = 0; row < 8; row++)
         {
             for (int column = 0; column < 8; column++)
             {
-                Piece_characteristic current_button = board[row, column];
+                Game_cell current_button = board[row, column];
 
                 if (current_button.name == Piece_name.king && current_button.color == color)
                     return get_attack_range_of(board, reverse(color)).Contains(new(row, column));
@@ -171,33 +168,30 @@ public static class Chess_game
         return true;
     }
 
-    public static bool is_this_color_in_checkmate(Piece_characteristic[,] board, Turns color)
+    public static bool is_this_color_in_checkmate(Game_cell[,] board, Turns color)
         => is_this_color_in_check(board, color) && get_all_moves(board, color).Count == 0;
 
-    private static bool is_board_contains_only(Piece_characteristic[,] board, HashSet<Piece_name> names, Turns color)
+    private static bool is_board_contains_only(Game_cell[,] board, HashSet<Piece_name> names, Turns color)
     {
         for (int row = 0; row < 8; row++)
         {
             for (int column = 0; column < 8; column++)
             {
-                Piece_characteristic temp = board[row, column];
+                Game_cell temp = board[row, column];
 
-                if (temp.is_None())
+                if (temp.is_None() || temp.color != color)
                     continue;
 
-                if (temp.color == color)
-                {
-                    if (names.Contains(temp.name))
-                        names.Remove(temp.name);
+                else if (names.Contains(temp.name))
+                    names.Remove(temp.name);
 
-                    else return false;
-                }
+                else return false;
             }
         }
         return names.Count == 0;
     }
 
-    public static bool is_draw(Piece_characteristic[,] board, Turns color)
+    public static bool is_draw(Game_cell[,] board, Turns color)
         => get_all_moves(board, color).Count == 0 && !is_this_color_in_check(board, color) ||
 
             (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.white) ||
@@ -208,10 +202,10 @@ public static class Chess_game
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.black) ||
              is_board_contains_only(board, [Piece_name.king], Turns.black));
 
-    public static bool is_valid_move(Piece_characteristic[,] board, Move move, Turns color, bool is_king_moved)
+    public static bool is_valid_move(Game_cell[,] board, Move move, Turns color, bool is_king_moved)
         => !is_this_color_in_check(generate_future_board(board, move, is_king_moved), color);
 
-    public static Move attempt_castling(Piece_characteristic new_king_pos, Turns color)
+    public static Move attempt_castling(Game_cell new_king_pos, Turns color)
     {
         if (color == Turns.white && new_king_pos.pos.row == 7)
         {
@@ -233,9 +227,9 @@ public static class Chess_game
         return new();
     }
 
-    public static Piece_characteristic[,] generate_future_board(Piece_characteristic[,] board, Move move, bool is_king_moved)
+    public static Game_cell[,] generate_future_board(Game_cell[,] board, Move move, bool is_king_moved)
     {
-        Piece_characteristic[,] future_board = new Piece_characteristic[8, 8];
+        Game_cell[,] future_board = new Game_cell[8, 8];
 
         for (int row = 0; row < 8; row++)
             for (int column = 0; column < 8; column++)
@@ -271,17 +265,14 @@ public static class Chess_game
 
             case Piece_name.king:
                 {
-                    if (is_king_moved)
-                        break;
+                    if (is_king_moved) break;
 
-                    Move rook_castling_moves = Chess_game.attempt_castling(future_board[move.to.row, move.to.col], color);
+                    Move rook_castling_moves = attempt_castling(future_board[move.to.row, move.to.col], color);
 
-                    if (rook_castling_moves.is_None())
-                        break;
+                    if (rook_castling_moves.is_None()) break;
 
                     future_board[rook_castling_moves.from.row, rook_castling_moves.from.col]
                         .move_to(ref future_board[rook_castling_moves.to.row, rook_castling_moves.to.col]);
-
 
                     break;
                 }
