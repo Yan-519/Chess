@@ -52,9 +52,9 @@ public static class Chess_game
         return board;
     }
 
-    private static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color) => get_all_moves(board, color, new(false));
+    private static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color, Prev_move_memo prev, int half_moves) => get_all_moves(board, color, new(false), prev, half_moves);
 
-    public static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color, Move_bools move_bools)
+    public static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color, Move_bools move_bools, Prev_move_memo prev, int half_moves)
     {
         HashSet<Move> moves = [];
 
@@ -67,7 +67,7 @@ public static class Chess_game
                 if (current.color != color)
                     continue;
 
-                moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, color, move_bools.is_king_moved)));
+                moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, color, move_bools.is_king_moved, prev, half_moves)));
 
                 if (current.name == Piece_name.king && !move_bools.is_king_moved)
                     moves.UnionWith(get_possible_castling_positions(board, color, move_bools).Select(p => new Move(to: p, from: current.pos)));
@@ -168,8 +168,8 @@ public static class Chess_game
         return true;
     }
 
-    public static bool is_this_color_in_checkmate(Chess_cell[,] board, Turns color)
-        => is_this_color_in_check(board, color) && get_all_moves(board, color).Count == 0;
+    public static bool is_this_color_in_checkmate(Chess_cell[,] board, Turns color, Prev_move_memo prez, int half_moves)
+        => is_this_color_in_check(board, color) && get_all_moves(board, color, prez, half_moves).Count == 0;
 
     private static bool is_board_contains_only(Chess_cell[,] board, HashSet<Piece_name> names, Turns color)
     {
@@ -191,8 +191,8 @@ public static class Chess_game
         return names.Count == 0;
     }
 
-    public static bool is_draw(Chess_cell[,] board, Turns color)
-        => get_all_moves(board, color).Count == 0 && !is_this_color_in_check(board, color) ||
+    public static bool is_draw(Chess_cell[,] board, Turns color, Prev_move_memo prev_moves, int half_move_count)
+        => get_all_moves(board, color, prev_moves, half_move_count).Count == 0 && !is_this_color_in_check(board, color) ||
 
             (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.white) ||
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.white) ||
@@ -202,8 +202,8 @@ public static class Chess_game
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.black) ||
              is_board_contains_only(board, [Piece_name.king], Turns.black));
 
-    public static bool is_valid_move(Chess_cell[,] board, Move move, Turns color, bool is_king_moved)
-        => !is_this_color_in_check(generate_future_board(board, move, is_king_moved), color);
+    public static bool is_valid_move(Chess_cell[,] board, Move move, Turns color, bool is_king_moved, Prev_move_memo prev_moves, int half_move_count)
+        => !is_this_color_in_check(generate_future_board(board, move, is_king_moved, prev_moves, half_move_count), color);
 
     public static Move attempt_castling(Chess_cell new_king_pos, Turns color)
     {
@@ -227,7 +227,7 @@ public static class Chess_game
         return new();
     }
 
-    public static Chess_cell[,] generate_future_board(Chess_cell[,] board, Move move, bool is_king_moved)
+    public static Chess_cell[,] generate_future_board(Chess_cell[,] board, Move move, bool is_king_moved, Prev_move_memo prev, int half_moves)
     {
         Chess_cell[,] future_board = new Chess_cell[8, 8];
 
@@ -252,7 +252,7 @@ public static class Chess_game
         {
             case Piece_name.pawn:
                 if (move.to.row == 0 || move.to.row == 7)
-                    future_board[move.to.row, move.to.col].name = Chess_bot.find_best_pawn_transformation(future_board, move.to, color);
+                    future_board[move.to.row, move.to.col].name = Chess_bot.find_best_pawn_transformation(future_board, move.to, color, prev, half_moves);
                 else
                 {
                     int start_position = (color == Turns.white) ? 6 : 1;

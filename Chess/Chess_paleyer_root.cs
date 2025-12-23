@@ -6,6 +6,8 @@ public class Chess_player_root(Turns player_color)
 {
     protected Chess_cell[,] _board = InitializeBoard();
 
+    protected Prev_move_memo prev_moves = new();
+
     protected Move_bools white_move_bools = new(false);
     protected Move_bools black_move_bools = new(false);
 
@@ -18,6 +20,8 @@ public class Chess_player_root(Turns player_color)
 
     public Piece_name change_pawn_to = Piece_name.None;
 
+    protected int half_move_count = 0;
+
     protected Move_bools get_move_bools(Turns color) => (color == Turns.white) ? white_move_bools : black_move_bools;
 
     protected bool set_move(Move move, bool is_bot = false, bool is_opponent_color = false)
@@ -29,7 +33,7 @@ public class Chess_player_root(Turns player_color)
 
         Move_bools is_moved = get_move_bools(color);
 
-        if (!get_all_moves(_board, color, is_moved).Contains(move))
+        if (!get_all_moves(_board, color, is_moved, prev_moves, half_move_count).Contains(move))
             return false;
 
         else if (_board[move.to.row, move.to.col].is_None() && _board[move.from.row, move.from.col].name == Piece_name.pawn)
@@ -49,7 +53,7 @@ public class Chess_player_root(Turns player_color)
         {
             case Piece_name.pawn:
                 if (move.to.row == 0 || move.to.row == 7)
-                    _board[move.to.row, move.to.col].name = is_bot ? Chess_bot.find_best_pawn_transformation(_board, move.to, color) : change_pawn_to;
+                    _board[move.to.row, move.to.col].name = is_bot ? Chess_bot.find_best_pawn_transformation(_board, move.to, color, prev_moves, half_move_count) : change_pawn_to;
                 else
                 {
                     int start_position = (color == Turns.white) ? 6 : 1;
@@ -95,11 +99,13 @@ public class Chess_player_root(Turns player_color)
         }
 
         turn = reverse(turn);
+        half_move_count++;
+        prev_moves.Push(move);
 
-        if (is_this_color_in_checkmate(_board, turn))
+        if (is_this_color_in_checkmate(_board, turn, prev_moves, half_move_count))
             end_game_type = Loose_type.checkmate;
 
-        else if (is_draw(_board, turn))
+        else if (is_draw(_board, turn, prev_moves, half_move_count) || half_move_count == 100 || prev_moves.is_repeated())
             end_game_type = Loose_type.draw;
 
         return true;
