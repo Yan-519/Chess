@@ -2,7 +2,7 @@
 
 using static Chess_game;
 
-public class Game_cell
+public class Chess_cell
 {
     private None_piece action = new();
 
@@ -37,14 +37,14 @@ public class Game_cell
     public bool is_pawn_double_moved = false;
     public int cost { get; private set; }
 
-    public Game_cell(Piece_name name, Turns color, Pos pos)
+    public Chess_cell(Piece_name name, Turns color, Pos pos)
     {
         this.name = name;
         this.color = color;
         this.pos = pos.copy();
     }
 
-    public void move_to(ref Game_cell to)
+    public void move_to(ref Chess_cell to)
     {
         to.name = this.name;
         to.color = this.color;
@@ -52,16 +52,16 @@ public class Game_cell
         this.name = Piece_name.None;
     }
 
-    public HashSet<Move> get_moves(Game_cell[,] board) => action.get_list_of_moves(board, this.pos, this.color, false);
+    public HashSet<Move> get_moves(Chess_cell[,] board) => action.get_list_of_moves(board, this.pos, this.color, false);
 
-    public HashSet<Move> get_range_attack(Game_cell[,] board) => action.get_list_of_moves(board, this.pos, this.color, true);
+    public HashSet<Move> get_range_attack(Chess_cell[,] board) => action.get_list_of_moves(board, this.pos, this.color, true);
 
-    public Game_cell copy() => new(this.name, this.color, this.pos);
+    public Chess_cell copy() => new(this.name, this.color, this.pos);
 
     public bool is_None() => this.name == Piece_name.None;
 
     public override bool Equals(object? obj)
-        => obj is Game_cell other && this.name == other.name && this.color == other.color && this.pos == other.pos;
+        => obj is Chess_cell other && this.name == other.name && this.color == other.color && this.pos == other.pos;
 
     public override int GetHashCode() => HashCode.Combine(this.color, this.name, this.pos);
 }

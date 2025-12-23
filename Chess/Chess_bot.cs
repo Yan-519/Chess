@@ -83,12 +83,12 @@ public class Chess_bot : Chess_player_root
 
     public Chess_bot() : base(Turns.black) => bot_level = Bot_levels.easy;
 
-    private static double calculate_move_value(Game_cell[,] board, Move move, Turns color, bool is_king_moved)
+    private static double calculate_move_value(Chess_cell[,] board, Move move, Turns color, bool is_king_moved)
         => calculate_move_value(generate_future_board(board, move, is_king_moved), color);
 
-    private static double calculate_move_value(Game_cell[,] future, Turns color)
+    private static double calculate_move_value(Chess_cell[,] future, Turns color)
     {
-        static double calculate_board_value_diff(Game_cell[,] board, Turns color)
+        static double calculate_board_value_diff(Chess_cell[,] board, Turns color)
         {
             double score = 0;
 
@@ -96,7 +96,7 @@ public class Chess_bot : Chess_player_root
             {
                 for (int column = 0; column < 8; column++)
                 {
-                    Game_cell current = board[row, column];
+                    Chess_cell current = board[row, column];
 
                     if (current.is_None()) continue;
 
@@ -125,11 +125,11 @@ public class Chess_bot : Chess_player_root
     }
 
 
-    private static Move get_easy_move(Game_cell[,] board, Turns color, Move_bools move_bools)
+    private static Move get_easy_move(Chess_cell[,] board, Turns color, Move_bools move_bools)
         => get_easy_move(board, color, move_bools, [], []);
 
-    private static Move get_easy_move(Game_cell[,] board, Turns color, Move_bools move_bools,
-        HashSet<Move> bot_moves, Dictionary<Move, Game_cell[,]> future_board_from_original)
+    private static Move get_easy_move(Chess_cell[,] board, Turns color, Move_bools move_bools,
+        HashSet<Move> bot_moves, Dictionary<Move, Chess_cell[,]> future_board_from_original)
     {
         if (bot_moves.Count == 0)
         {
@@ -144,7 +144,7 @@ public class Chess_bot : Chess_player_root
 
             foreach (Move bot_move in bot_moves)
             {
-                Game_cell[,] future_board = generate_future_board(board, bot_move, move_bools.is_king_moved);
+                Chess_cell[,] future_board = generate_future_board(board, bot_move, move_bools.is_king_moved);
                 future_board_from_original[bot_move] = future_board;
 
                 if (is_this_color_in_checkmate(future_board, reverse(color)))
@@ -176,8 +176,8 @@ public class Chess_bot : Chess_player_root
         return best_move;
     }
 
-    private static Move get_normal_move(Game_cell[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools,
-        HashSet<Move> bot_moves, Dictionary<Move, Game_cell[,]> future_board_from_original)
+    private static Move get_normal_move(Chess_cell[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools,
+        HashSet<Move> bot_moves, Dictionary<Move, Chess_cell[,]> future_board_from_original)
     {
         if (bot_moves.Count == 0)
         {
@@ -192,7 +192,7 @@ public class Chess_bot : Chess_player_root
 
             foreach (Move bot_move in bot_moves)
             {
-                Game_cell[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved);
+                Chess_cell[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved);
                 future_board_from_original[bot_move] = future_board;
 
                 if (is_this_color_in_checkmate(future_board, reverse(color)))
@@ -206,7 +206,7 @@ public class Chess_bot : Chess_player_root
 
         foreach (Move bot_move in bot_moves)
         {
-            Game_cell[,] future_board_first = future_board_from_original[bot_move];
+            Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
             Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools);
             if (best_player_move.is_None())
@@ -230,7 +230,7 @@ public class Chess_bot : Chess_player_root
         return best_move;
     }
 
-    private static Move get_best_move(Game_cell[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools)
+    private static Move get_best_move(Chess_cell[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools)
     {
         HashSet<Move> bot_moves = get_all_moves(board, color, bot_move_bools);
 
@@ -239,11 +239,11 @@ public class Chess_bot : Chess_player_root
         else if (bot_moves.Count == 1)
             return bot_moves.ToArray().First();
 
-        Dictionary<Move, Game_cell[,]> future_board_from_original = [];
+        Dictionary<Move, Chess_cell[,]> future_board_from_original = [];
 
         foreach (Move bot_move in bot_moves)
         {
-            Game_cell[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved);
+            Chess_cell[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved);
             future_board_from_original[bot_move] = future_board;
 
             if (is_this_color_in_checkmate(future_board, reverse(color)))
@@ -256,7 +256,7 @@ public class Chess_bot : Chess_player_root
 
         foreach (Move bot_move in bot_moves)
         {
-            Game_cell[,] future_board_first = future_board_from_original[bot_move];
+            Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
             Move_bools is_moved_second = bot_move_bools with { };
 
@@ -289,7 +289,7 @@ public class Chess_bot : Chess_player_root
             //        is_player_moved_second.is_right_rook_moved = true;
             //}
 
-            Game_cell[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved);
+            Chess_cell[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved);
 
             Move best_bot_move = get_easy_move(future_board_second, color, is_moved_second); //, is_player_moved_second);
             if (best_player_move.is_None())
@@ -314,14 +314,14 @@ public class Chess_bot : Chess_player_root
     }
 
 
-    public static Piece_name find_best_pawn_transformation(Game_cell[,] board, Pos pos_of_pawn, Turns color)
+    public static Piece_name find_best_pawn_transformation(Chess_cell[,] board, Pos pos_of_pawn, Turns color)
     {
         double best_score = double.MinValue;
         Piece_name best_transformation = Piece_name.None;
 
         foreach (Piece_name name in new[] { Piece_name.queen, Piece_name.rook, Piece_name.bishop, Piece_name.knight })
         {
-            Game_cell[,] temp = (Game_cell[,])board.Clone();
+            Chess_cell[,] temp = (Chess_cell[,])board.Clone();
             temp[pos_of_pawn.row, pos_of_pawn.col].name = name;
 
             if (is_this_color_in_check(temp, color))

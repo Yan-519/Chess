@@ -4,7 +4,7 @@ using static Chess_game;
 
 public class Chess_player_root(Turns player_color)
 {
-    protected Game_cell[,] _board = InitializeBoard();
+    protected Chess_cell[,] _board = InitializeBoard();
 
     protected Move_bools white_move_bools = new(false);
     protected Move_bools black_move_bools = new(false);

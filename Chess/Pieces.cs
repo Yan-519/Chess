@@ -9,17 +9,17 @@ class None_piece
     public None_piece() => cost = 0;
     protected None_piece(int cost) => this.cost = cost;
 
-    public virtual HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range) => [];
+    public virtual HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range) => [];
 }
 
 class Pawn : None_piece
 {
     public Pawn() : base(1) { }
 
-    public override HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range)
+    public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
         => is_range ? get_range_attack(pos, color) : get_moves(board, pos, color);
 
-    private static HashSet<Move> get_moves(Game_cell[,] board, Pos pos, Turns color)
+    private static HashSet<Move> get_moves(Chess_cell[,] board, Pos pos, Turns color)
     {
         if (pos.row == ((color == Turns.white) ? 0 : 7))
             return [];
@@ -28,7 +28,7 @@ class Pawn : None_piece
 
         int control_num = (color == Turns.white) ? -1 : 1;
 
-        Game_cell current_class = board[pos.row + control_num, pos.col];
+        Chess_cell current_class = board[pos.row + control_num, pos.col];
 
         if (current_class.is_None())
         {
@@ -85,7 +85,7 @@ class Bishop : None_piece
     private static readonly int[] col_deltas = [-1, -1, 1, 1];
 
     public Bishop() : base(3) { }
-    public override HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range)
+    public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
     {
         HashSet<Move> list = [];
 
@@ -120,7 +120,7 @@ class Bishop : None_piece
                 }
                 else
                 {
-                    Game_cell current_class = board[new_row, new_col];
+                    Chess_cell current_class = board[new_row, new_col];
 
                     if (current_class.is_None() || current_class.color != color)
                         list.Add(new(new(new_row, new_col), pos));
@@ -141,7 +141,7 @@ class Rook : None_piece
     private static readonly int[] col_deltas = [0, 0, 1, -1];
 
     public Rook() : base(5) { }
-    public override HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range)
+    public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
     {
         HashSet<Move> list = [];
 
@@ -166,7 +166,7 @@ class Rook : None_piece
                 }
                 else
                 {
-                    Game_cell current_class = board[new_row, new_col];
+                    Chess_cell current_class = board[new_row, new_col];
 
                     if (current_class.is_None() || current_class.color != color)
                         list.Add(new(new(new_row, new_col), pos));
@@ -186,7 +186,7 @@ class Knight : None_piece
 {
     public Knight() :base(3) { }
 
-    public override HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range)
+    public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
     {
         HashSet<Move> list = [];
 
@@ -204,7 +204,7 @@ class Knight : None_piece
                     if (is_range)
                         list.Add(new(new_pos, pos));
 
-                    else if (board[new_pos.row, new_pos.col] is Game_cell current_class && (current_class.is_None() || current_class.color != color))
+                    else if (board[new_pos.row, new_pos.col] is Chess_cell current_class && (current_class.is_None() || current_class.color != color))
                         list.Add(new(new_pos, pos));
                 }
             }
@@ -218,7 +218,7 @@ class Queen : None_piece
 {
     public Queen() : base(9) { }
 
-    public override HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range)
+    public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
         =>  new Rook().get_list_of_moves(board, pos, color, is_range).Union(
             new Bishop().get_list_of_moves(board, pos, color, is_range)).ToHashSet();
 }
@@ -230,7 +230,7 @@ class King : None_piece
 
     public King() : base(100) { }
 
-    public override HashSet<Move> get_list_of_moves(Game_cell[,] board, Pos pos, Turns color, bool is_range)
+    public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
     {
         HashSet<Move> list = [];
 
@@ -243,7 +243,7 @@ class King : None_piece
                 if (is_range)
                     list.Add(new(new_pos, pos));
 
-                else if (board[new_pos.row, new_pos.col] is Game_cell current_class && (current_class.is_None() || current_class.color != color))
+                else if (board[new_pos.row, new_pos.col] is Chess_cell current_class && (current_class.is_None() || current_class.color != color))
                     list.Add(new(new_pos, pos));
             }
         }

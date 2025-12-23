@@ -19,9 +19,9 @@ public static class Chess_game
 
     public readonly static Func<Turns, Turns> reverse = color => (color == Turns.white) ? Turns.black : Turns.white;
 
-    public static Game_cell[,] InitializeBoard()
+    public static Chess_cell[,] InitializeBoard()
     {
-        Game_cell[,] board = new Game_cell[8, 8];
+        Chess_cell[,] board = new Chess_cell[8, 8];
 
         Piece_name[] line_of_figures =
         [
@@ -52,9 +52,9 @@ public static class Chess_game
         return board;
     }
 
-    private static HashSet<Move> get_all_moves(Game_cell[,] board, Turns color) => get_all_moves(board, color, new(false));
+    private static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color) => get_all_moves(board, color, new(false));
 
-    public static HashSet<Move> get_all_moves(Game_cell[,] board, Turns color, Move_bools move_bools)
+    public static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color, Move_bools move_bools)
     {
         HashSet<Move> moves = [];
 
@@ -62,7 +62,7 @@ public static class Chess_game
         {
             for (int column = 0; column < 8; column++)
             {
-                Game_cell current = board[row, column];
+                Chess_cell current = board[row, column];
 
                 if (current.color != color)
                     continue;
@@ -78,11 +78,11 @@ public static class Chess_game
         return moves;
     }
 
-    public static HashSet<Pos> get_possible_castling_positions(Game_cell[,] board, Turns color, Move_bools move_bools)
+    public static HashSet<Pos> get_possible_castling_positions(Chess_cell[,] board, Turns color, Move_bools move_bools)
     {
-        static bool is_able_to_castling_her(Game_cell[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
+        static bool is_able_to_castling_her(Chess_cell[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
         {
-            static bool is_path_clear(Game_cell[,] board, Pos[] positions)
+            static bool is_path_clear(Chess_cell[,] board, Pos[] positions)
             {
                 foreach (Pos pos in positions)
                     if (!board[pos.row, pos.col].is_None())
@@ -91,7 +91,7 @@ public static class Chess_game
                 return true;
             }
 
-            static bool is_path_safe(Game_cell[,] board, Pos[] positions, Turns color)
+            static bool is_path_safe(Chess_cell[,] board, Pos[] positions, Turns color)
             {
                 HashSet<Pos> attacks = get_attack_range_of(board, reverse(color));
 
@@ -136,7 +136,7 @@ public static class Chess_game
         return possible_castling_positions;
     }
 
-    private static HashSet<Pos> get_attack_range_of(Game_cell[,] board, Turns color)
+    private static HashSet<Pos> get_attack_range_of(Chess_cell[,] board, Turns color)
     {
         HashSet<Pos> attack_positions = [];
 
@@ -144,7 +144,7 @@ public static class Chess_game
         {
             for (int column = 0; column < 8; column++)
             {
-                Game_cell current_button = board[row, column];
+                Chess_cell current_button = board[row, column];
 
                 if (current_button.color == color)
                     attack_positions.UnionWith(current_button.get_range_attack(board).Select(m => m.to));
@@ -153,13 +153,13 @@ public static class Chess_game
         return attack_positions;
     }
 
-    public static bool is_this_color_in_check(Game_cell[,] board, Turns color)
+    public static bool is_this_color_in_check(Chess_cell[,] board, Turns color)
     {
         for (int row = 0; row < 8; row++)
         {
             for (int column = 0; column < 8; column++)
             {
-                Game_cell current_button = board[row, column];
+                Chess_cell current_button = board[row, column];
 
                 if (current_button.name == Piece_name.king && current_button.color == color)
                     return get_attack_range_of(board, reverse(color)).Contains(new(row, column));
@@ -168,16 +168,16 @@ public static class Chess_game
         return true;
     }
 
-    public static bool is_this_color_in_checkmate(Game_cell[,] board, Turns color)
+    public static bool is_this_color_in_checkmate(Chess_cell[,] board, Turns color)
         => is_this_color_in_check(board, color) && get_all_moves(board, color).Count == 0;
 
-    private static bool is_board_contains_only(Game_cell[,] board, HashSet<Piece_name> names, Turns color)
+    private static bool is_board_contains_only(Chess_cell[,] board, HashSet<Piece_name> names, Turns color)
     {
         for (int row = 0; row < 8; row++)
         {
             for (int column = 0; column < 8; column++)
             {
-                Game_cell temp = board[row, column];
+                Chess_cell temp = board[row, column];
 
                 if (temp.is_None() || temp.color != color)
                     continue;
@@ -191,7 +191,7 @@ public static class Chess_game
         return names.Count == 0;
     }
 
-    public static bool is_draw(Game_cell[,] board, Turns color)
+    public static bool is_draw(Chess_cell[,] board, Turns color)
         => get_all_moves(board, color).Count == 0 && !is_this_color_in_check(board, color) ||
 
             (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.white) ||
@@ -202,10 +202,10 @@ public static class Chess_game
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.black) ||
              is_board_contains_only(board, [Piece_name.king], Turns.black));
 
-    public static bool is_valid_move(Game_cell[,] board, Move move, Turns color, bool is_king_moved)
+    public static bool is_valid_move(Chess_cell[,] board, Move move, Turns color, bool is_king_moved)
         => !is_this_color_in_check(generate_future_board(board, move, is_king_moved), color);
 
-    public static Move attempt_castling(Game_cell new_king_pos, Turns color)
+    public static Move attempt_castling(Chess_cell new_king_pos, Turns color)
     {
         if (color == Turns.white && new_king_pos.pos.row == 7)
         {
@@ -227,9 +227,9 @@ public static class Chess_game
         return new();
     }
 
-    public static Game_cell[,] generate_future_board(Game_cell[,] board, Move move, bool is_king_moved)
+    public static Chess_cell[,] generate_future_board(Chess_cell[,] board, Move move, bool is_king_moved)
     {
-        Game_cell[,] future_board = new Game_cell[8, 8];
+        Chess_cell[,] future_board = new Chess_cell[8, 8];
 
         for (int row = 0; row < 8; row++)
             for (int column = 0; column < 8; column++)

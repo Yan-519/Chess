@@ -197,13 +197,13 @@
         private void refresh_board()
         {
             this.Text = $"The turn of the {player.turn} player";
-            Game_cell[,] board = player.board;
+            Chess_cell[,] board = player.board;
 
             for (int row = 0; row < 8; row++)
             {
                 for (int column = 0; column < 8; column++)
                 {
-                    Game_cell current_piece = board[row, column];
+                    Chess_cell current_piece = board[row, column];
                     board_buttons[row, column].Image = get_picture(current_piece.color, current_piece.name);
                 }
             }
