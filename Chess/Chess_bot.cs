@@ -207,6 +207,8 @@ public class Chess_bot : Chess_player_root
         foreach (Move bot_move in bot_moves)
         {
             Prev_move_memo new_prev = prev.Push_get(bot_move);
+            if (new_prev.is_repeated())
+                continue;
             Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
             Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools, new_prev, half_moves + 1);
@@ -237,7 +239,7 @@ public class Chess_bot : Chess_player_root
 
         if (bot_moves.Count == 0)
             return new();
-        else if (bot_moves.Count == 1)
+        else if (bot_moves.Count == 1 )
             return bot_moves.ToArray().First();
 
         Dictionary<Move, Chess_cell[,]> future_board_from_original = [];
@@ -258,6 +260,8 @@ public class Chess_bot : Chess_player_root
         foreach (Move bot_move in bot_moves)
         {
             Prev_move_memo new_prev = prev.Push_get(bot_move);
+            if (new_prev.is_repeated())
+                continue;
             Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
             Move_bools is_moved_second = bot_move_bools with { };
@@ -290,10 +294,11 @@ public class Chess_bot : Chess_player_root
             //    else if (best_player_move.from.col == 6)
             //        is_player_moved_second.is_right_rook_moved = true;
             //}
-            new_prev.Push(best_player_move);
 
             Chess_cell[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved, new_prev, half_moves + 1);
             new_prev.Push(best_player_move);
+            if (new_prev.is_repeated())
+                continue;
 
             Move best_bot_move = get_easy_move(future_board_second, color, is_moved_second, new_prev, half_moves + 2); //, is_player_moved_second);
             if (best_player_move.is_None())
