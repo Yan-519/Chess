@@ -1,9 +1,9 @@
 ﻿namespace Chess
 {
-    using Bot_levels = Chess_game.Bot_levels;
-    using Loose_type = Chess_game.Loose_type;
-    using Piece_name = Chess_game.Piece_name;
-    using Turns = Chess_game.Turns;
+    using Bot_levels = Chess_tools.Bot_levels;
+    using Loose_type = Chess_tools.Loose_type;
+    using Piece_name = Chess_tools.Piece_name;
+    using Turns = Chess_tools.Turns;
     public partial class Game_form : Form
     {
         private Button[,] board_buttons = new Button[8, 8];
@@ -51,7 +51,7 @@
             player = new Chess_player(player_color);
             InitBoard(player_color);
 
-            bot = new Chess_bot(Chess_game.reverse(player_color), bot_level, ref selected_move);
+            bot = new Chess_bot(Chess_tools.reverse(player_color), bot_level, ref selected_move);
             if (!selected_move.is_None())
                 player.make_bot_move(selected_move);
 

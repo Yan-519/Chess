@@ -1,6 +1,6 @@
 ﻿namespace Chess;
 
-using Turns = Chess_game.Turns;
+using Turns = Chess_tools.Turns;
 
 class None_piece
 {

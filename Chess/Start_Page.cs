@@ -1,5 +1,5 @@
-using Bot_levels = Chess.Chess_game.Bot_levels;
-using Turns = Chess.Chess_game.Turns;
+using Bot_levels = Chess.Chess_tools.Bot_levels;
+using Turns = Chess.Chess_tools.Turns;
 
 namespace Chess
 {

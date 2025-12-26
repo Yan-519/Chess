@@ -1,6 +1,6 @@
 ﻿namespace Chess;
 
-using static Chess_game;
+using static Chess_tools;
 
 public class Chess_player_root(Turns player_color)
 {
@@ -29,9 +29,9 @@ public class Chess_player_root(Turns player_color)
         if (end_game_type != Loose_type.game_gos || move.is_None() || color != turn)
             return false;
 
-        Move_bools is_moved = get_move_bools(color);
+        Move_bools move_bools = get_move_bools(color);
 
-        if (!get_all_moves(_board, color, is_moved, draw_data).Contains(move))
+        if (!get_all_moves(_board, color, move_bools, draw_data).Contains(move))
             return false;
 
         else if (_board[move.to.row, move.to.col].is_None() && _board[move.from.row, move.from.col].name == Piece_name.pawn)
@@ -54,9 +54,7 @@ public class Chess_player_root(Turns player_color)
                     _board[move.to.row, move.to.col].name = is_bot ? Chess_bot.find_best_pawn_transformation(_board, move.to, color, draw_data) : change_pawn_to;
                 else
                 {
-                    int start_position = (color == Turns.white) ? 6 : 1;
-                    int end_position = (color == Turns.white) ? 4 : 3;
-
+                    (int start_position, int end_position) = (color == Turns.white) ? (6, 4) : (1, 3);
                     if (move.from.row == start_position && move.to.row == end_position)
                         _board[move.to.row, move.to.col].is_pawn_double_moved = true;
                 }
@@ -76,7 +74,7 @@ public class Chess_player_root(Turns player_color)
 
             case Piece_name.king:
                 {
-                    if (is_moved.is_king_moved) break;
+                    if (move_bools.is_king_moved) break;
 
                     Move rook_castling_moves = attempt_castling(_board[move.to.row, move.to.col], color);
 

@@ -4,8 +4,7 @@
     {
         public int row, col;
 
-        public Pos(int row, int column)
-            => (this.row, this.col) = (row, column);
+        public Pos(int row, int column) => (this.row, this.col) = (row, column);
 
         public Pos() : this(-1, -1) { }
 

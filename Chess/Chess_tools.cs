@@ -1,50 +1,14 @@
 ﻿namespace Chess;
 
-public static class Chess_game
+public static class Chess_tools
 {
-    public class Draw_data
-    {
-        private const int HALF_MOES_FOR_DRAW = 100;
-
-        private Prev_move_memo prev_moves = new();
-        private int half_moves = 0;
-
-        public Draw_data() { }
-
-        private Draw_data(Prev_move_memo prev_moves, int half_moves)
-        {
-            this.prev_moves = prev_moves;
-            this.half_moves = half_moves;
-        }
-
-        public void next(Move move)
-        {
-            half_moves++;
-            prev_moves.Push(move);
-        }
-
-        public Draw_data next_get(Move move) => new(prev_moves.Push_get(move), half_moves + 1);
-
-        public bool is_draw() => half_moves >= HALF_MOES_FOR_DRAW || prev_moves.is_repeated();
-    }
-
-
-    public record struct Move_bools(bool is_king_moved, bool is_left_rook_moved, bool is_right_rook_moved)
-    {
-        public bool is_king_moved = is_king_moved;
-        public bool is_left_rook_moved = is_left_rook_moved;
-        public bool is_right_rook_moved = is_right_rook_moved;
-
-        public Move_bools(bool b) : this(b, b, b) { }
-    };
-
     public enum Piece_name { rook, knight, bishop, queen, king, pawn, None };
     public enum Turns { white, black };
     public enum Bot_levels { easy, normal, hard };
     public enum Loose_type { checkmate, draw, game_gos, time_ended, not_started };
 
 
-    public readonly static Func<Turns, Turns> reverse = color => (color == Turns.white) ? Turns.black : Turns.white;
+    public static Turns reverse(Turns color) => (color == Turns.white) ? Turns.black : Turns.white;
 
     public static Chess_cell[,] InitializeBoard()
     {
@@ -219,8 +183,7 @@ public static class Chess_game
     }
 
     public static bool is_draw(Chess_cell[,] board, Turns color, Draw_data draw_data)
-        => get_all_moves(board, color, draw_data).Count == 0 && !is_this_color_in_check(board, color) ||
-            draw_data.is_draw() ||
+        => get_all_moves(board, color, draw_data).Count == 0 && !is_this_color_in_check(board, color) || draw_data.is_draw() ||
 
             (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.white) ||
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.white) ||
@@ -283,9 +246,7 @@ public static class Chess_game
                     future_board[move.to.row, move.to.col].name = Chess_bot.find_best_pawn_transformation(future_board, move.to, color, draw_data);
                 else
                 {
-                    int start_position = (color == Turns.white) ? 6 : 1;
-                    int end_position = (color == Turns.white) ? 4 : 3;
-
+                    (int start_position, int end_position) = (color == Turns.white) ? (6, 4) : (1, 3);
                     if (move.from.row == start_position && move.to.row == end_position)
                         future_board[move.to.row, move.to.col].is_pawn_double_moved = true;
                 }

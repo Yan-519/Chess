@@ -1,6 +1,6 @@
 ﻿namespace Chess; 
 
-using static Chess_game;
+using static Chess_tools;
 
 public class Chess_cell
 {
@@ -29,7 +29,6 @@ public class Chess_cell
 
             _name = value;
         }
-
     }
 
     public Pos pos;

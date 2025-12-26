@@ -1,6 +1,6 @@
 ﻿namespace Chess;
 
-using static Chess_game;
+using static Chess_tools;
 
 public class Chess_bot : Chess_player_root
 {
@@ -278,29 +278,14 @@ public class Chess_bot : Chess_player_root
                     is_moved_second = bot_move_bools with { is_right_rook_moved = true };
             }
 
-            Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools, new_draw_data);// is_moved_second, bot_moves, future_board_from_original);
-            if (best_player_move.is_None())
-                continue;
-
-            //Piece_name player_piece = future_board_first[best_player_move.from.row, best_player_move.from.col].name;
-            //Move_bools is_player_moved_second = player_move_bools with { };
-
-            //if (player_piece == Piece_name.king)
-            //    is_player_moved_second.is_king_moved = true;
-            //else if (player_piece == Piece_name.rook)
-            //{
-            //    if (best_player_move.from.col == 0)
-            //        is_player_moved_second.is_left_rook_moved = true;
-            //    else if (best_player_move.from.col == 6)
-            //        is_player_moved_second.is_right_rook_moved = true;
-            //}
+            Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools, new_draw_data);
 
             Chess_cell[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved, new_draw_data);
             new_draw_data.next_get(best_player_move);
             if (new_draw_data.is_draw())
                 continue;
 
-            Move best_bot_move = get_easy_move(future_board_second, color, is_moved_second, new_draw_data); //, is_player_moved_second);
+            Move best_bot_move = get_easy_move(future_board_second, color, is_moved_second, new_draw_data);
             if (best_player_move.is_None())
                 continue;
 

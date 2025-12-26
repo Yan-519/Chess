@@ -1,7 +1,7 @@
 ﻿namespace Chess;
 
-using Piece_name = Chess_game.Piece_name;
-using Turns = Chess_game.Turns;
+using Piece_name = Chess_tools.Piece_name;
+using Turns = Chess_tools.Turns;
 
 public partial class Change_pawn_window : Form
 {
