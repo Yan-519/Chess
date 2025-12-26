@@ -11,7 +11,7 @@
                 moves[i] = new();
         }
 
-        protected Prev_move_memo(Move[] moves)
+        private Prev_move_memo(Move[] moves)
         {
             for (int i = 0; i < SIZE; i++)
                 this.moves[i] = moves[i].copy();

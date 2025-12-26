@@ -17,7 +17,7 @@ public class Chess_player(Chess_game.Turns player_color) : Chess_player_root(pla
         Chess_cell current = _board[pos.row, pos.col];
         Chess_game.Move_bools move_bools = get_move_bools(turn);
 
-        possible_moves.UnionWith(current.get_moves(_board).Where(m => Chess_game.is_valid_move(_board, m, current.color, move_bools.is_king_moved, prev_moves, half_move_count)).Select(m => m.to));
+        possible_moves.UnionWith(current.get_moves(_board).Where(m => Chess_game.is_valid_move(_board, m, current.color, move_bools.is_king_moved, draw_data)).Select(m => m.to));
 
 
         if (current.name == Chess_game.Piece_name.king)
