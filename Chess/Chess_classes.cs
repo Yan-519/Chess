@@ -5,10 +5,10 @@ public class Draw_data
 {
     internal class Prev_move_memo
     {
-        private const int SIZE = 12;
+        private const int SIZE = 9;
         private Move[] moves = new Move[SIZE];
         public bool is_repeted { get; private set; } = false;
-        private Func<int, int, int> mod_that_works = (n, m) => (n - m) < 0 ? (n - m) + SIZE : (n - m) % SIZE;
+        private Func<int, int> mod_that_works = n => ((n % SIZE) + SIZE) % SIZE;
 
         private int head_index = 0;
         private bool is_made_loop = false;
@@ -38,8 +38,8 @@ public class Draw_data
 
         private bool repeated_check()
         {
-            for (int i = head_index; (mod_that_works(i, 2) != (is_made_loop ? 11 : head_index)); i = mod_that_works(i, 1))
-                if (moves[i].from != moves[mod_that_works(i, 2)].to || moves[i].is_None() || moves[mod_that_works(i,2)].is_None())
+            for (int i = head_index; (mod_that_works(i - 2) != (is_made_loop ? 11 : head_index)); i = mod_that_works(i - 1))
+                if (moves[i].from != moves[mod_that_works(i - 2)].to || moves[i].is_None() || moves[mod_that_works(i -2)].is_None())
                     return false;
             return true;
         }
