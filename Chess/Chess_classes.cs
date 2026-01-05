@@ -7,7 +7,7 @@ public class Draw_data
     {
         private const int SIZE = 12;
         private Move[] moves = new Move[SIZE];
-        public bool is_repeted {  get; private set; } = false;
+        public bool is_repeted { get; private set; } = false;
         private Func<int, int, int> mod_that_works = (n, m) => (n - m) < 0 ? (n - m) + SIZE : (n - m) % SIZE;
 
         private int head_index = 0;
@@ -38,18 +38,9 @@ public class Draw_data
 
         private bool repeated_check()
         {
-            if (is_made_loop)
-            {
-                for (int i = head_index; mod_that_works(i, 2) != head_index; i = mod_that_works(i,1))
-                    if (moves[i].from != moves[mod_that_works(i, 2)].to)
-                        return false;
-            }
-            else
-            {
-                for (int i = 0; i < SIZE - 2; i++)
-                    if (moves[i].from != moves[i + 2].to || moves[i + 2].is_None())
-                        return false;
-            }
+            for (int i = head_index; (mod_that_works(i, 2) != (is_made_loop ? 11 : head_index)); i = mod_that_works(i, 1))
+                if (moves[i].from != moves[mod_that_works(i, 2)].to || moves[i].is_None() || moves[mod_that_works(i,2)].is_None())
+                    return false;
             return true;
         }
 
