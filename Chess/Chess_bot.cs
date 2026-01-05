@@ -207,7 +207,7 @@ public class Chess_bot : Chess_player_root
         foreach (Move bot_move in bot_moves)
         {
             Draw_data new_draw_data = draw_data.next_get(bot_move);
-            if (new_draw_data.is_draw())
+            if (new_draw_data.is_draw)
                 continue;
             Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
@@ -260,7 +260,7 @@ public class Chess_bot : Chess_player_root
         foreach (Move bot_move in bot_moves)
         {
             Draw_data new_draw_data = draw_data.next_get(bot_move);
-            if (new_draw_data.is_draw())
+            if (new_draw_data.is_draw)
                 continue;
             Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
@@ -282,7 +282,7 @@ public class Chess_bot : Chess_player_root
 
             Chess_cell[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved, new_draw_data);
             new_draw_data.next_get(best_player_move);
-            if (new_draw_data.is_draw())
+            if (new_draw_data.is_draw)
                 continue;
 
             Move best_bot_move = get_easy_move(future_board_second, color, is_moved_second, new_draw_data);

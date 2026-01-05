@@ -183,7 +183,7 @@ public static class Chess_tools
     }
 
     public static bool is_draw(Chess_cell[,] board, Turns color, Draw_data draw_data)
-        => get_all_moves(board, color, draw_data).Count == 0 && !is_this_color_in_check(board, color) || draw_data.is_draw() ||
+        => get_all_moves(board, color, draw_data).Count == 0 && !is_this_color_in_check(board, color) || draw_data.is_draw ||
 
             (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.white) ||
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.white) ||

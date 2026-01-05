@@ -24,7 +24,7 @@
             => this.row >= 0 && this.row <= 7 &&
                this.col >= 0 && this.col <= 7;
 
-        //public override string ToString() => $"({this.row},{this.col})";
+        public override string ToString() => $"({this.row},{this.col})";
 
         public override bool Equals(object? obj) => obj is Pos other && this == other;
 

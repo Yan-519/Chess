@@ -17,7 +17,7 @@
 
         public Move copy() => new(this.to.copy(), this.from.copy());
 
-        //public override string ToString() => $"from: {from} to: {to}";
+        public override string ToString() => $"[from: {from} to: {to}]";
 
         public override bool Equals(object? obj)
             => obj is Move other && this == other;

@@ -1,4 +1,5 @@
-﻿namespace Chess;
+﻿
+namespace Chess;
 
 public class Draw_data
 {
@@ -6,6 +7,11 @@ public class Draw_data
     {
         private const int SIZE = 12;
         private Move[] moves = new Move[SIZE];
+        public bool is_repeted {  get; private set; } = false;
+        private Func<int, int, int> mod_that_works = (n, m) => (n - m) < 0 ? (n - m) + SIZE : (n - m) % SIZE;
+
+        private int head_index = 0;
+        private bool is_made_loop = false;
 
         public Prev_move_memo()
         {
@@ -13,40 +19,53 @@ public class Draw_data
                 moves[i] = new();
         }
 
-        private Prev_move_memo(Move[] moves)
+        private Prev_move_memo(Move[] moves, int head_index, bool is_made_loop)
         {
             for (int i = 0; i < SIZE; i++)
                 this.moves[i] = moves[i].copy();
+            this.head_index = head_index;
+            this.is_made_loop = is_made_loop;
         }
 
         public void Push(Move move)
         {
-            for (int i = SIZE - 1; i > 0; i--)
-                moves[i] = moves[i - 1];
-
-            moves[0] = move.copy();
+            head_index++;
+            is_made_loop = head_index == SIZE;
+            head_index %= SIZE;
+            moves[head_index] = move;
+            is_repeted = repeated_check();
         }
 
-        public bool is_repeated()
+        private bool repeated_check()
         {
-            for (int i = 0; i < SIZE - 2; i++)
-                if (moves[i].from != moves[i + 2].to || moves[i + 2].is_None())
-                    return false;
+            if (is_made_loop)
+            {
+                for (int i = head_index; mod_that_works(i, 2) != head_index; i = mod_that_works(i,1))
+                    if (moves[i].from != moves[mod_that_works(i, 2)].to)
+                        return false;
+            }
+            else
+            {
+                for (int i = 0; i < SIZE - 2; i++)
+                    if (moves[i].from != moves[i + 2].to || moves[i + 2].is_None())
+                        return false;
+            }
             return true;
         }
 
         public Prev_move_memo Push_get(Move move)
         {
-            Prev_move_memo prev = new(moves);
+            Prev_move_memo prev = new(moves, head_index, is_made_loop);
             prev.Push(move);
             return prev;
         }
     }
 
-    private const int HALF_MOES_FOR_DRAW = 100;
+    private const int HALF_MOVES_FOR_DRAW = 100;
 
     private Prev_move_memo prev_moves = new();
     private int half_moves = 0;
+    public bool is_draw { get; private set; } = false;
 
     public Draw_data() { }
 
@@ -54,17 +73,17 @@ public class Draw_data
     {
         this.prev_moves = prev_moves;
         this.half_moves = half_moves;
+        this.is_draw = half_moves >= HALF_MOVES_FOR_DRAW || prev_moves.is_repeted;
     }
 
     public void next(Move move)
     {
         half_moves++;
         prev_moves.Push(move);
+        is_draw = half_moves >= HALF_MOVES_FOR_DRAW || prev_moves.is_repeted;
     }
 
     public Draw_data next_get(Move move) => new(prev_moves.Push_get(move), half_moves + 1);
-
-    public bool is_draw() => half_moves >= HALF_MOES_FOR_DRAW || prev_moves.is_repeated();
 }
 
 public record struct Move_bools(bool is_king_moved, bool is_left_rook_moved, bool is_right_rook_moved)
