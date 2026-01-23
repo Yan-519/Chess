@@ -1,7 +1,7 @@
 ﻿namespace Chess
 {
     using Bot_levels = Chess_tools.Bot_levels;
-    using Loose_type = Chess_tools.Loose_type;
+    using Game_stats = Chess_tools.Game_stats;
     using Piece_name = Chess_tools.Piece_name;
     using Turns = Chess_tools.Turns;
     public partial class Game_form : Form
@@ -29,7 +29,7 @@
         public Game_form(Start_Page start_Page)
         {
             InitializeComponent();
-            this.FormClosing += (sender, e) => Environment.Exit(0);
+            FormClosing += (sender, e) => Environment.Exit(0);
 
             game_type = Game_type.two_players;
             this.start_Page = start_Page;
@@ -43,7 +43,7 @@
         public Game_form(Start_Page start_Page, Turns player_color, Bot_levels bot_level)
         {
             InitializeComponent();
-            this.FormClosing += (sender, e) => Environment.Exit(0);
+            FormClosing += (sender, e) => Environment.Exit(0);
 
             game_type = Game_type.vz_bot;
             this.start_Page = start_Page;
@@ -60,6 +60,9 @@
 
         private void InitBoard(Turns color)
         {
+            surrender_bar_op.Tag = true;
+            draw_bar_op.Tag = false;
+
             TableLayoutPanel main_grid = new()
             {
                 Dock = DockStyle.Fill,
@@ -72,7 +75,7 @@
                 main_grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 12.5f));
             }
 
-            this.Controls.Add(main_grid);
+            Controls.Add(main_grid);
 
             Func<int, int> indexing = i => color == Turns.white ? i : 7 - i;
 
@@ -105,13 +108,14 @@
             try
             {
                 return (Bitmap)Image.FromFile(path);
-            } catch { }
+            }
+            catch { }
             return null;
         }
 
         private void Button_Click(Pos pos)
         {
-            if (game_type == Game_type.vz_bot && player.turn != player.color_of_this && game_type != Game_type.two_players || player.end_game_type != Loose_type.game_gos)
+            if (game_type == Game_type.vz_bot && player.turn != player.color_of_this && game_type != Game_type.two_players || player.game_state != Game_stats.gos)
                 return;
 
             if (!pos.isin_board_range())
@@ -160,7 +164,7 @@
                 return;
             }
             refresh_board();
-            if (game_type == Game_type.vz_bot && player.end_game_type == Loose_type.game_gos)
+            if (game_type == Game_type.vz_bot && player.game_state == Game_stats.gos)
             {
                 selected_move = bot.get_response_for(selected_move);
                 if (!selected_move.is_None() && player.make_bot_move(selected_move))
@@ -181,14 +185,14 @@
 
         private void check_for_game_end()
         {
-            if (player.end_game_type != Loose_type.game_gos)
+            if (player.game_state != Game_stats.gos)
             {
-                if (MessageBox.Show($"The game is over: {player.end_game_type} on the {player.turn} turn \n" +
+                if (MessageBox.Show($"The game is over: {player.game_state} on the {player.turn} turn \n" +
                                                         "Do you want to go to the start page?", "Game finish",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    this.start_Page.Show();
-                    this.Hide();
+                    start_Page.Show();
+                    Close();
                 }
                 else Environment.Exit(0);
             }
@@ -196,7 +200,7 @@
 
         private void refresh_board()
         {
-            this.Text = $"The turn of the {player.turn} player";
+            Text = $"The turn of the {player.turn} player";
             Chess_cell[,] board = player.board;
 
             for (int row = 0; row < 8; row++)
@@ -229,6 +233,16 @@
                     if (selected_move.to.is_on(row, column) || selected_move.from.is_on(row, column))
                         current_button.BackColor = selected;
                 }
+            }
+        }
+
+        private void game_end_option_click(object sender, EventArgs e)
+        {
+            if (sender is ToolStripMenuItem option && option.Tag is bool is_surrender)
+            {
+                player.game_state = is_surrender ? Game_stats.surrender : Game_stats.draw;
+
+                check_for_game_end();
             }
         }
     }

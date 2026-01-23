@@ -1,94 +1,38 @@
 ﻿namespace Chess;
 
+using static Board_values;
 using static Chess_tools;
 
 public class Chess_bot : Chess_player_root
 {
     private static readonly Random random = new();
 
-    private static readonly double[,] piece_position_modifiers = new double[8, 8]
-    {
-            { -0.5, -0.4, -0.4, -0.4, -0.4, -0.4, -0.4, -0.5},
-            { -0.4, -0.2,  0.0,  0.0,  0.0,  0.0, -0.2, -0.4},
-            { -0.4,  0.0,  0.1,  0.2,  0.2,  0.1,  0.0, -0.4},
-            { -0.4,  0.0,  0.2,  0.25, 0.25, 0.2,  0.0, -0.4},
-            { -0.4,  0.0,  0.2,  0.25, 0.25, 0.2,  0.0, -0.4},
-            { -0.4,  0.0,  0.1,  0.2,  0.2,  0.1,  0.0, -0.4},
-            { -0.4, -0.2,  0.0,  0.0,  0.0,  0.0, -0.2, -0.4},
-            { -0.5, -0.4, -0.4, -0.4, -0.4, -0.4, -0.4, -0.5}
-    };
-
-    private static readonly double[,] king_position_modifiers = new double[8, 8]
-    {
-            { 0.25, 0.2,  0.2,  0.2,  0.2,  0.2, 0.2, 0.25},
-            { 0.2,  0.1,  0.0,  0.0,  0.0,  0.0, 0.1, 0.2 },
-            { 0.2,  0.0, -0.2, -0.4, -0.4, -0.2, 0.0, 0.2 },
-            { 0.2,  0.0, -0.4, -0.5, -0.5, -0.4, 0.0, 0.2 },
-            { 0.2,  0.0, -0.4, -0.5, -0.5, -0.4, 0.0, 0.2 },
-            { 0.2,  0.0, -0.2, -0.4, -0.4, -0.2, 0.0, 0.2 },
-            { 0.2,  0.1,  0.0,  0.0,  0.0,  0.0, 0.1, 0.2 },
-            { 0.25, 0.2,  0.2,  0.2,  0.2,  0.2, 0.2, 0.25}
-    };
-
-    private static readonly double[,] pawn_modifiers_to_up = new double[8, 8]
-    {
-            { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 },
-            { 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05 },
-            { 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10 },
-            { 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15 },
-            { 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20 },
-            { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 },
-            { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 },
-            { 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35 }
-    };
-
-    private static readonly double[,] pawn_modifiers_to_down = new double[8, 8]
-    {
-            { 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35 },
-            { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 },
-            { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 },
-            { 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20 },
-            { 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15 },
-            { 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10 },
-            { 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05 },
-            { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }
-    };
-
-    private static readonly double[,] rook_modifier = new double[8, 8]
-    {
-            { 0    , -0.10, 0.00, 0.00, 0.00, 0.00, -0.10, 0     },
-            { -0.10, 0.05 , 0.05, 0.05, 0.05, 0.05, 0.05 , -0.10 },
-            { 0    , 0.10 , 0.10, 0.10, 0.10, 0.10, 0.10 , 0     },
-            { 0.20 , 0.20 , 0.20, 0.20, 0.20, 0.20, 0.20 , 0.20  },
-            { 0.15 , 0.15 , 0.15, 0.15, 0.15, 0.15, 0.15 , 0.15  },
-            { 0    , 0.10 , 0.10, 0.10, 0.10, 0.10, 0.10 , 0     },
-            { -0.10, 0.05 , 0.05, 0.05, 0.05, 0.05, 0.05 , -0.10 },
-            { 0    , -0.10, 0.00, 0.00, 0.00, 0.00, -0.10, 0     }
-    };
-
     private readonly Bot_levels bot_level;
 
-    public Chess_bot(Turns bot_color, Bot_levels bot_Level, ref Move first_move) :
+    public Chess_bot(Turns bot_color, Bot_levels bot_level, ref Move first_move) :
         base(bot_color)
     {
-        this.bot_level = bot_Level;
+        this.bot_level = bot_level;
 
         if (color_of_this == turn)
         {
             first_move = get_move();
-            set_move(first_move);
+            check_and_make_move(first_move);
         }
         else first_move = new();
     }
 
     public Chess_bot() : base(Turns.black) => bot_level = Bot_levels.easy;
 
-    private static double calculate_move_value(Chess_cell[,] board, Move move, Turns color, bool is_king_moved, Draw_data draw_data)
-        => calculate_move_value(generate_future_board(board, move, is_king_moved, draw_data), color, draw_data.next_get(move));
-
-    private static double calculate_move_value(Chess_cell[,] future, Turns color, Draw_data draw_data)
+    private static double calculate_move_value(Chess_cell[,] board, Move move, Turns color, Move_bools bools, Draw_data draw_data)
     {
-        static double calculate_board_value_diff(Chess_cell[,] board, Turns color)
+        (Chess_cell[,] future, _, Draw_data new_draw_data) = generate_future_board(board, move, bools, draw_data, color);
+        return calculate_move_value(future, color, new_draw_data, board[move.from.row, move.from.col].name == Piece_name.king);
+    }
+
+    private static double calculate_move_value(Chess_cell[,] future, Turns color, Draw_data draw_data, bool is_king_move)
+    {
+        static double calculate_board_value_diff(Chess_cell[,] board, Turns color, bool is_king_move)
         {
             double score = 0;
 
@@ -103,12 +47,15 @@ public class Chess_bot : Chess_player_root
                     score += (current.cost + current.name switch
                     {
                         Piece_name.knight => king_position_modifiers[row, column],
-                        Piece_name.pawn => (color == Turns.white) ? pawn_modifiers_to_up[row, column] : pawn_modifiers_to_down[row, column],
+                        Piece_name.pawn => pawn_modifiers_to_down[(color == Turns.white) ? pawn_modifiers_to_down.Length - row - 1 : row],
                         Piece_name.rook => rook_modifier[row, column],
                         _ => piece_position_modifiers[row, column]
                     }) * ((current.color == color) ? 1 : -1);
                 }
             }
+            if (is_king_move)
+                score += AVOID_KING_MOVES_COST;
+
             return score;
         }
 
@@ -121,7 +68,7 @@ public class Chess_bot : Chess_player_root
         if (is_this_color_in_checkmate(future, color, draw_data))
             return double.NegativeInfinity;
 
-        return calculate_board_value_diff(future, color);
+        return calculate_board_value_diff(future, color, is_king_move);
     }
 
 
@@ -129,7 +76,7 @@ public class Chess_bot : Chess_player_root
         => get_easy_move(board, color, move_bools, draw_data, [], []);
 
     private static Move get_easy_move(Chess_cell[,] board, Turns color, Move_bools move_bools, Draw_data draw_data,
-        HashSet<Move> bot_moves, Dictionary<Move, Chess_cell[,]> future_board_from_original)
+        HashSet<Move> bot_moves, Dictionary<Move, (Chess_cell[,], Move_bools, Draw_data)> future_board_from_original)
     {
         if (bot_moves.Count == 0)
         {
@@ -144,10 +91,10 @@ public class Chess_bot : Chess_player_root
 
             foreach (Move bot_move in bot_moves)
             {
-                Chess_cell[,] future_board = generate_future_board(board, bot_move, move_bools.is_king_moved, draw_data);
-                future_board_from_original[bot_move] = future_board;
+                (Chess_cell[,] future_board, Move_bools is_moved_second, Draw_data new_draw_data) = generate_future_board(board, bot_move, move_bools, draw_data, reverse(color));
+                future_board_from_original[bot_move] = (future_board, is_moved_second, new_draw_data);
 
-                if (is_this_color_in_checkmate(future_board, reverse(color), draw_data.next_get(bot_move)))
+                if (is_this_color_in_checkmate(future_board, reverse(color), new_draw_data))
                     return bot_move;
             }
         }
@@ -158,7 +105,8 @@ public class Chess_bot : Chess_player_root
 
         foreach (Move bot_move in bot_moves)
         {
-            double current_score = calculate_move_value(future_board_from_original[bot_move], color, draw_data.next_get(bot_move));
+            (Chess_cell[,] future_board_first, _, Draw_data new_draw_data) = future_board_from_original[bot_move];
+            double current_score = calculate_move_value(future_board_first, color, new_draw_data, board[bot_move.from.row, bot_move.from.col].name == Piece_name.king);
 
             if (current_score == double.MaxValue)
                 return bot_move;
@@ -177,7 +125,7 @@ public class Chess_bot : Chess_player_root
     }
 
     private static Move get_normal_move(Chess_cell[,] board, Turns color, Move_bools bot_move_bools, Move_bools player_move_bools, Draw_data draw_data,
-        HashSet<Move> bot_moves, Dictionary<Move, Chess_cell[,]> future_board_from_original)
+        HashSet<Move> bot_moves, Dictionary<Move, (Chess_cell[,], Move_bools, Draw_data)> future_board_from_original)
     {
         if (bot_moves.Count == 0)
         {
@@ -192,10 +140,10 @@ public class Chess_bot : Chess_player_root
 
             foreach (Move bot_move in bot_moves)
             {
-                Chess_cell[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved, draw_data);
-                future_board_from_original[bot_move] = future_board;
+                (Chess_cell[,] future_board, Move_bools is_moved_second, Draw_data new_draw_data) = generate_future_board(board, bot_move, bot_move_bools, draw_data, reverse(color));
+                future_board_from_original[bot_move] = (future_board, is_moved_second, new_draw_data);
 
-                if (is_this_color_in_checkmate(future_board, reverse(color), draw_data.next_get(bot_move)))
+                if (is_this_color_in_checkmate(future_board, reverse(color), new_draw_data))
                     return bot_move;
             }
         }
@@ -206,16 +154,15 @@ public class Chess_bot : Chess_player_root
 
         foreach (Move bot_move in bot_moves)
         {
-            Draw_data new_draw_data = draw_data.next_get(bot_move);
+            (Chess_cell[,] future_board_first, _, Draw_data new_draw_data) = future_board_from_original[bot_move];
             if (new_draw_data.is_draw)
                 continue;
-            Chess_cell[,] future_board_first = future_board_from_original[bot_move];
 
             Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools, new_draw_data);
             if (best_player_move.is_None())
                 continue;
 
-            double current_score = calculate_move_value(future_board_first, best_player_move, color, bot_move_bools.is_king_moved, new_draw_data);
+            double current_score = calculate_move_value(future_board_first, best_player_move, color, bot_move_bools, new_draw_data);
 
             if (current_score == double.MaxValue)
                 return bot_move;
@@ -239,17 +186,17 @@ public class Chess_bot : Chess_player_root
 
         if (bot_moves.Count == 0)
             return new();
-        else if (bot_moves.Count == 1 )
+        else if (bot_moves.Count == 1)
             return bot_moves.ToArray().First();
 
-        Dictionary<Move, Chess_cell[,]> future_board_from_original = [];
+        Dictionary<Move, (Chess_cell[,], Move_bools, Draw_data)> future_board_from_original = [];
 
         foreach (Move bot_move in bot_moves)
         {
-            Chess_cell[,] future_board = generate_future_board(board, bot_move, bot_move_bools.is_king_moved, draw_data);
-            future_board_from_original[bot_move] = future_board;
+            (Chess_cell[,] future_board, Move_bools is_moved_second, Draw_data new_draw_data) = generate_future_board(board, bot_move, bot_move_bools, draw_data, reverse(color));
+            future_board_from_original[bot_move] = (future_board, is_moved_second, new_draw_data);
 
-            if (is_this_color_in_checkmate(future_board, reverse(color), draw_data.next_get(bot_move)))
+            if (is_this_color_in_checkmate(future_board, reverse(color), new_draw_data))
                 return bot_move;
         }
 
@@ -259,29 +206,13 @@ public class Chess_bot : Chess_player_root
 
         foreach (Move bot_move in bot_moves)
         {
-            Draw_data new_draw_data = draw_data.next_get(bot_move);
+            (Chess_cell[,] future_board_first, Move_bools is_moved_second, Draw_data new_draw_data) = future_board_from_original[bot_move];
             if (new_draw_data.is_draw)
                 continue;
-            Chess_cell[,] future_board_first = future_board_from_original[bot_move];
-
-            Move_bools is_moved_second = bot_move_bools with { };
-
-            Piece_name piece = future_board_first[bot_move.from.row, bot_move.from.col].name;
-
-            if (piece == Piece_name.king)
-                is_moved_second = bot_move_bools with { is_king_moved = true };
-            else if (piece == Piece_name.rook)
-            {
-                if (bot_move.from.col == 0)
-                    is_moved_second = bot_move_bools with { is_left_rook_moved = true };
-                else if (bot_move.from.col == 6)
-                    is_moved_second = bot_move_bools with { is_right_rook_moved = true };
-            }
 
             Move best_player_move = get_easy_move(future_board_first, reverse(color), player_move_bools, new_draw_data);
 
-            Chess_cell[,] future_board_second = generate_future_board(future_board_first, best_player_move, is_moved_second.is_king_moved, new_draw_data);
-            new_draw_data.next_get(best_player_move);
+            (Chess_cell[,] future_board_second, _, new_draw_data) = generate_future_board(future_board_first, best_player_move, is_moved_second, new_draw_data, reverse(color));
             if (new_draw_data.is_draw)
                 continue;
 
@@ -289,7 +220,7 @@ public class Chess_bot : Chess_player_root
             if (best_player_move.is_None())
                 continue;
 
-            double current_score = calculate_move_value(future_board_second, best_player_move, color, is_moved_second.is_king_moved, new_draw_data);
+            double current_score = calculate_move_value(future_board_second, best_player_move, color, is_moved_second, new_draw_data);
 
             if (current_score == double.MaxValue)
                 return bot_move;
@@ -324,7 +255,7 @@ public class Chess_bot : Chess_player_root
             else if (is_this_color_in_check(temp, reverse(color)))
                 return name;
 
-            double current_score = calculate_move_value(temp, color, draw_data);
+            double current_score = calculate_move_value(temp, color, draw_data, false);
             if (current_score == double.MaxValue)
                 return name;
 
@@ -340,17 +271,17 @@ public class Chess_bot : Chess_player_root
 
     public Move get_response_for(Move player_move)
     {
-        if (turn == color_of_this || end_game_type != Loose_type.game_gos || player_move.is_None())
+        if (turn == color_of_this || game_state != Game_stats.gos || player_move.is_None())
             return new();
 
-        set_move(player_move);
+        check_and_make_move(player_move);
 
-        if (end_game_type != Loose_type.game_gos)
+        if (game_state != Game_stats.gos)
             return new();
 
         Move response = get_move();
 
-        set_move(response, true);
+        check_and_make_move(response, true);
 
         return response;
     }

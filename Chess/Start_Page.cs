@@ -64,8 +64,8 @@ namespace Chess
         {
             is_bot = !is_bot;
 
-            top_bar_levels.Visible = is_bot;
-            top_bar_player_color.Visible = is_bot;
+            //top_bar_levels.Visible = is_bot;
+            //top_bar_player_color.Visible = is_bot;
 
             random_bar.Checked = true;
             white_bar.Checked = false;

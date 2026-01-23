@@ -8,7 +8,7 @@ public class Draw_data
         private const int SIZE = 9;
         private Move[] moves = new Move[SIZE];
         public bool is_repeated { get; private set; } = false;
-        private Func<int, int> mod_that_works = n => ((n % SIZE) + SIZE) % SIZE;
+        private readonly Func<int, int> mod_that_works = n => ((n % SIZE) + SIZE) % SIZE;
 
         private int head_index = 0;
         private bool is_made_loop = false;
@@ -21,11 +21,11 @@ public class Draw_data
 
         private Prev_move_memo(Prev_move_memo prev)
         {
-            this.head_index = prev.head_index;
-            this.is_made_loop= prev.is_made_loop;
+            head_index = prev.head_index;
+            is_made_loop = prev.is_made_loop;
 
             for (int i = 0; i < SIZE; i++)
-                this.moves[i] = prev.moves[i].copy();
+                moves[i] = prev.moves[i].copy();
         }
 
         public void Push(Move move)
@@ -34,13 +34,14 @@ public class Draw_data
             is_made_loop = head_index == SIZE;
             head_index %= SIZE;
             moves[head_index] = move;
-            is_repeated = repeated_check();
+            if (is_made_loop)
+                is_repeated = repeated_check();
         }
 
         private bool repeated_check()
         {
-            for (int i = head_index; mod_that_works(i - 2) != (is_made_loop ? 11 : head_index); i = mod_that_works(i - 1))
-                if (moves[i].from != moves[mod_that_works(i - 2)].to || moves[i].is_None() || moves[mod_that_works(i - 2)].is_None())
+            for (int i = head_index; mod_that_works(i - 2) != head_index; i = mod_that_works(i - 1))
+                if (moves[i].from != moves[mod_that_works(i - 2)].to)
                     return false;
             return true;
         }
@@ -65,7 +66,7 @@ public class Draw_data
     {
         this.prev_moves = prev_moves;
         this.half_moves = half_moves;
-        this.is_draw = half_moves >= HALF_MOVES_FOR_DRAW || prev_moves.is_repeated;
+        is_draw = half_moves >= HALF_MOVES_FOR_DRAW || prev_moves.is_repeated;
     }
 
     public void next(Move move)

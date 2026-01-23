@@ -5,7 +5,7 @@ public static class Chess_tools
     public enum Piece_name { rook, knight, bishop, queen, king, pawn, None };
     public enum Turns { white, black };
     public enum Bot_levels { easy, normal, hard };
-    public enum Loose_type { checkmate, draw, game_gos, time_ended, not_started };
+    public enum Game_stats { checkmate, draw, gos, time_ended, surrender };
 
 
     public static Turns reverse(Turns color) => (color == Turns.white) ? Turns.black : Turns.white;
@@ -58,7 +58,7 @@ public static class Chess_tools
                 if (current.color != color)
                     continue;
 
-                moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, color, move_bools.is_king_moved, draw_data)));
+                moves.UnionWith(current.get_moves(board).Where(m => is_valid_move(board, m, color, move_bools, draw_data)));
 
                 if (current.name == Piece_name.king && !move_bools.is_king_moved)
                     moves.UnionWith(get_possible_castling_positions(board, color, move_bools).Select(p => new Move(to: p, from: current.pos)));
@@ -193,8 +193,8 @@ public static class Chess_tools
              is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.black) ||
              is_board_contains_only(board, [Piece_name.king], Turns.black));
 
-    public static bool is_valid_move(Chess_cell[,] board, Move move, Turns color, bool is_king_moved, Draw_data draw_data)
-        => !is_this_color_in_check(generate_future_board(board, move, is_king_moved, draw_data), color);
+    public static bool is_valid_move(Chess_cell[,] board, Move move, Turns color, Move_bools bools, Draw_data draw_data)
+        => !is_this_color_in_check(generate_future_board(board, move, bools, draw_data, color).Item1, color);
 
     public static Move attempt_castling(Chess_cell new_king_pos, Turns color)
     {
@@ -218,7 +218,12 @@ public static class Chess_tools
         return new();
     }
 
-    public static Chess_cell[,] generate_future_board(Chess_cell[,] board, Move move, bool is_king_moved, Draw_data draw_data)
+    public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(Chess_cell[,] board, Move move, Move_bools bools, Draw_data draw_data, Turns color)
+        => generate_future_board(board, move, bools, draw_data, color, Piece_name.None, true);
+
+
+
+    public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(Chess_cell[,] board, Move move, Move_bools bools, Draw_data draw_data, Turns color, Piece_name change_pawn_to, bool is_bot = false)
     {
         Chess_cell[,] future_board = new Chess_cell[8, 8];
 
@@ -226,15 +231,11 @@ public static class Chess_tools
             for (int column = 0; column < 8; column++)
                 future_board[row, column] = board[row, column].copy();
 
-        Turns color = future_board[move.from.row, move.from.col].color;
-
         if (future_board[move.to.row, move.to.col].is_None() && future_board[move.from.row, move.from.col].name == Piece_name.pawn)
         {
-            int en_passant_row = (color == Turns.white) ? 1 : -1;
-            if (new Pos(move.to.row + en_passant_row, move.to.col).isin_board_range())
-                if (future_board[move.to.row + en_passant_row, move.to.col].name == Piece_name.pawn &&
-                    future_board[move.to.row + en_passant_row, move.to.col].color != color)
-                    future_board[move.to.row + en_passant_row, move.to.col].name = Piece_name.None;
+            Pos temp = new(move.to.row + ((color == Turns.white) ? 1 : -1), move.to.col);
+            if (temp.isin_board_range() && future_board[temp.row, temp.col].name == Piece_name.pawn && future_board[temp.row, temp.col].color != color)
+                future_board[temp.row, temp.col].name = Piece_name.None;
         }
 
         future_board[move.from.row, move.from.col].move_to(ref future_board[move.to.row, move.to.col]);
@@ -243,7 +244,7 @@ public static class Chess_tools
         {
             case Piece_name.pawn:
                 if (move.to.row == 0 || move.to.row == 7)
-                    future_board[move.to.row, move.to.col].name = Chess_bot.find_best_pawn_transformation(future_board, move.to, color, draw_data);
+                    future_board[move.to.row, move.to.col].name = is_bot ? Chess_bot.find_best_pawn_transformation(future_board, move.to, color, draw_data) : change_pawn_to;
                 else
                 {
                     (int start_position, int end_position) = (color == Turns.white) ? (6, 4) : (1, 3);
@@ -252,23 +253,37 @@ public static class Chess_tools
                 }
                 break;
 
+            case Piece_name.rook:
+                if (move.from.is_on(0, 0) || future_board[0, 0].name != Piece_name.rook)
+                    bools.is_left_rook_moved = true;
+                else if (move.from.is_on(0, 7) || future_board[0, 7].name != Piece_name.rook)
+                    bools.is_right_rook_moved = true;
+
+                else if (move.from.is_on(7, 0) || future_board[7, 0].name != Piece_name.rook)
+                    bools.is_left_rook_moved = true;
+                else if (move.from.is_on(7, 7) || future_board[7, 7].name != Piece_name.rook)
+                    bools.is_right_rook_moved = true;
+                break;
+
             case Piece_name.king:
                 {
-                    if (is_king_moved) break;
+                    if (bools.is_king_moved) break;
 
                     Move rook_castling_moves = attempt_castling(future_board[move.to.row, move.to.col], color);
 
-                    if (rook_castling_moves.is_None()) break;
+                    if (!rook_castling_moves.is_None())
+                    {
+                        future_board[rook_castling_moves.from.row, rook_castling_moves.from.col]
+                            .move_to(ref future_board[rook_castling_moves.to.row, rook_castling_moves.to.col]);
+                    }
 
-                    future_board[rook_castling_moves.from.row, rook_castling_moves.from.col]
-                        .move_to(ref future_board[rook_castling_moves.to.row, rook_castling_moves.to.col]);
-
+                    bools = new Move_bools(true);
                     break;
                 }
 
             default: break;
         }
 
-        return future_board;
+        return (future_board, bools, draw_data.next_get(move));
     }
 }
