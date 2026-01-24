@@ -1,4 +1,4 @@
-﻿namespace Chess
+﻿namespace Chess_project
 {
     partial class Start_Page
     {

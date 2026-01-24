@@ -1,4 +1,4 @@
-﻿namespace Chess
+﻿namespace Chess_project
 {
     partial class Change_pawn_window
     {

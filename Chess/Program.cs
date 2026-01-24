@@ -1,4 +1,4 @@
-namespace Chess
+namespace Chess_project
 {
     internal static class Program
     {

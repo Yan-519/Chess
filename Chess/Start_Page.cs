@@ -1,7 +1,7 @@
-using Bot_levels = Chess.Chess_code.Chess_tools.Bot_levels;
-using Turns = Chess.Chess_code.Chess_tools.Turns;
+using Bot_levels = Chess.Chess_tools.Bot_levels;
+using Turns = Chess.Chess_tools.Turns;
 
-namespace Chess
+namespace Chess_project
 {
     public partial class Start_Page : Form
     {

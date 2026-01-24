@@ -1,4 +1,4 @@
-﻿namespace Chess.Chess_code
+﻿namespace Chess
 {
     public class Pos
     {

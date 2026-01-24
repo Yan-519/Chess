@@ -1,6 +1,6 @@
-﻿using Chess.Chess_code;
+﻿using Chess;
 
-namespace Chess;
+namespace Chess_project;
 
 using Piece_name = Chess_tools.Piece_name;
 using Turns = Chess_tools.Turns;

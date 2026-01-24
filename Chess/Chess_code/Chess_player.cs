@@ -1,4 +1,4 @@
-﻿namespace Chess.Chess_code;
+﻿namespace Chess;
 
 public class Chess_player(Chess_tools.Turns player_color) : Chess_player_root(player_color)
 {
