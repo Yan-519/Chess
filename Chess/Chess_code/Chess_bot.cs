@@ -1,4 +1,4 @@
-﻿namespace Chess;
+﻿namespace Chess.Chess_code;
 
 using static Board_values;
 using static Chess_tools;

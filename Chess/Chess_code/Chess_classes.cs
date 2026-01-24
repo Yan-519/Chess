@@ -1,5 +1,4 @@
-﻿
-namespace Chess;
+﻿namespace Chess.Chess_code;
 
 public class Draw_data
 {

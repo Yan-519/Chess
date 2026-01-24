@@ -1,4 +1,4 @@
-﻿namespace Chess;
+﻿namespace Chess.Chess_code;
 
 using Turns = Chess_tools.Turns;
 

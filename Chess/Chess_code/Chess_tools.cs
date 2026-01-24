@@ -1,4 +1,4 @@
-﻿namespace Chess;
+﻿namespace Chess.Chess_code;
 
 public static class Chess_tools
 {
@@ -6,7 +6,6 @@ public static class Chess_tools
     public enum Turns { white, black };
     public enum Bot_levels { easy, normal, hard };
     public enum Game_stats { checkmate, draw, gos, time_ended, surrender };
-
 
     public static Turns reverse(Turns color) => (color == Turns.white) ? Turns.black : Turns.white;
 

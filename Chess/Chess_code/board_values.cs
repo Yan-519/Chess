@@ -1,8 +1,8 @@
-﻿namespace Chess;
+﻿namespace Chess.Chess_code;
 
 public static class Board_values
 {
-    public const double AVOID_KING_MOVES_COST = -10;
+    public const double AVOID_KING_MOVES_COST = -25;
 
     public static readonly double[,] piece_position_modifiers = new double[8, 8]
 {

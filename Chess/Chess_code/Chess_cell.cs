@@ -1,4 +1,4 @@
-﻿namespace Chess; 
+﻿namespace Chess.Chess_code;
 
 using static Chess_tools;
 

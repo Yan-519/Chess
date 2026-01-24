@@ -1,5 +1,8 @@
-﻿namespace Chess
+﻿using Chess.Chess_code;
+
+namespace Chess
 {
+    using Chess.Chess_code;
     using Bot_levels = Chess_tools.Bot_levels;
     using Game_stats = Chess_tools.Game_stats;
     using Piece_name = Chess_tools.Piece_name;
