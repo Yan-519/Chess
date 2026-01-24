@@ -1,8 +1,7 @@
-using Bot_levels = Chess.Chess_tools.Bot_levels;
-using Turns = Chess.Chess_tools.Turns;
-
 namespace Chess_project
 {
+    using static Chess.Chess_tools;
+
     public partial class Start_Page : Form
     {
         private static readonly Random random = new();

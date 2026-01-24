@@ -2,10 +2,8 @@
 
 namespace Chess_project
 {
-    using Bot_levels = Chess_tools.Bot_levels;
-    using Game_stats = Chess_tools.Game_stats;
-    using Piece_name = Chess_tools.Piece_name;
-    using Turns = Chess_tools.Turns;
+    using static Chess.Chess_tools;
+
     public partial class Game_form : Form
     {
         private Button[,] board_buttons = new Button[8, 8];
