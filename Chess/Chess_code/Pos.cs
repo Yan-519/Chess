@@ -10,7 +10,6 @@
 
 
         public static bool operator ==(Pos a, Pos b) => a.is_on(b.row, b.col);
-
         public static bool operator !=(Pos a, Pos b) => !(a == b);
 
 

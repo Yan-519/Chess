@@ -9,13 +9,17 @@ namespace Chess_project
         private enum Switch_player_color {white, black, random}
 
         private bool is_bot = false;
-        private Bot_levels bot_level = Bot_levels.easy;
-        private Turns player_turn = new Turns[2] { Turns.black, Turns.white }[ random.Next(2)];
+        private Bot_levels bot_level = default;
+        private Turns player_turn;
+
+        private Turns random_color => new Turns[2] { Turns.black, Turns.white }[random.Next(2)];
 
         public Start_Page()
         {
             InitializeComponent();
             this.Padding = new Padding(5);
+
+            player_turn = random_color;
 
             easy_bar.Tag = Bot_levels.easy;
             normal_bar.Tag = Bot_levels.normal;
@@ -49,9 +53,12 @@ namespace Chess_project
         {
             if (sender is ToolStripMenuItem menuItem && menuItem.Tag is Switch_player_color new_turn)
             {
-                player_turn = Switch_player_color.white == new_turn ? Turns.white :
-                    Switch_player_color.black == new_turn ? Turns.black :
-                    new Turns[2] { Turns.black, Turns.white }[random.Next(2)];
+                player_turn = new_turn switch
+                {
+                    Switch_player_color.white => Turns.white,
+                    Switch_player_color.black => Turns.black,
+                    _ => random_color
+                };
 
                 random_bar.Checked = Switch_player_color.random == new_turn;
                 white_bar.Checked = Switch_player_color.white == new_turn;
@@ -63,18 +70,16 @@ namespace Chess_project
         {
             is_bot = !is_bot;
 
-            //top_bar_levels.Visible = is_bot;
-            //top_bar_player_color.Visible = is_bot;
-
             random_bar.Checked = true;
             white_bar.Checked = false;
             black_bar.Checked = false;
-            player_turn = new Turns[2] { Turns.black, Turns.white }[random.Next(2)];
+
+            player_turn = random_color;
 
             easy_bar.Checked = true;
             normal_bar.Checked = false;
             hard_bar.Checked = false;
-            bot_level = Bot_levels.easy;
+            bot_level = default;
         }
 
     }

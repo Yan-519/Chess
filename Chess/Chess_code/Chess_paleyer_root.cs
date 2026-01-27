@@ -8,17 +8,18 @@ public class Chess_player_root(Turns player_color)
 
     protected Draw_data draw_data = new();
 
-    protected Move_bools white_move_bools = new(false);
-    protected Move_bools black_move_bools = new(false);
+    protected Move_bools white_move_bools = default;
+    protected Move_bools black_move_bools = default;
 
-    public Turns turn { get; protected set; } = Turns.white;
+    public Turns turn { get; protected set; } = default;
 
     public Turns color_of_this { get; init; } = player_color;
     public Turns color_of_opponent { get; init; } = reverse(player_color);
 
-    public Game_stats game_state = Game_stats.gos;
+    public Game_stats game_state { get; protected set; } = default;
+    public bool is_game_over => game_state != default;
 
-    public Piece_name change_pawn_to = Piece_name.None;
+    public Piece_name change_pawn_to = default;
 
     protected Move_bools get_move_bools(Turns color) => (color == Turns.white) ? white_move_bools : black_move_bools;
 
@@ -26,7 +27,7 @@ public class Chess_player_root(Turns player_color)
     {
         Turns color = is_opponent_color ? color_of_opponent : turn;
 
-        if (game_state != Game_stats.gos || move.is_None() || color != turn)
+        if (is_game_over|| move.is_None() || color != turn)
             return false;
 
         Move_bools move_bools = get_move_bools(color);
@@ -35,9 +36,11 @@ public class Chess_player_root(Turns player_color)
             return false;
 
         (_board, move_bools, draw_data) = generate_future_board(_board, move, move_bools, draw_data, color, change_pawn_to, is_bot);
+
         if (color == Turns.white)
             white_move_bools = move_bools;
-        else black_move_bools = move_bools;
+        else
+             black_move_bools = move_bools;
 
         turn = reverse(turn);
 

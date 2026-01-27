@@ -29,12 +29,12 @@ namespace Chess_project
         public Game_form(Start_Page start_Page)
         {
             InitializeComponent();
-            FormClosing += (sender, e) => Environment.Exit(0);
+            FormClosing += (_, _) => Environment.Exit(0);
 
             game_type = Game_type.two_players;
             this.start_Page = start_Page;
 
-            player = new Chess_player(Turns.white);
+            player = new Chess_player();
             bot = new();
 
             InitBoard(Turns.white);
@@ -43,7 +43,7 @@ namespace Chess_project
         public Game_form(Start_Page start_Page, Turns player_color, Bot_levels bot_level)
         {
             InitializeComponent();
-            FormClosing += (sender, e) => Environment.Exit(0);
+            FormClosing += (_, _) => Environment.Exit(0);
 
             game_type = Game_type.vz_bot;
             this.start_Page = start_Page;
@@ -51,7 +51,7 @@ namespace Chess_project
             player = new Chess_player(player_color);
             InitBoard(player_color);
 
-            bot = new Chess_bot(Chess_tools.reverse(player_color), bot_level, ref selected_move);
+            bot = new Chess_bot(player.color_of_opponent, bot_level, ref selected_move);
             if (!selected_move.is_None())
                 player.make_bot_move(selected_move);
 
@@ -164,7 +164,7 @@ namespace Chess_project
                 return;
             }
             refresh_board();
-            if (game_type == Game_type.vz_bot && player.game_state == Game_stats.gos)
+            if (game_type == Game_type.vz_bot && !player.is_game_over)
             {
                 selected_move = bot.get_response_for(selected_move);
                 if (!selected_move.is_None() && player.make_bot_move(selected_move))
@@ -185,7 +185,7 @@ namespace Chess_project
 
         private void check_for_game_end()
         {
-            if (player.game_state != Game_stats.gos)
+            if (player.is_game_over)
             {
                 if (MessageBox.Show($"The game is over: {player.game_state} on the {player.turn} turn \n" +
                                                         "Do you want to go to the start page?", "Game finish",
@@ -240,8 +240,7 @@ namespace Chess_project
         {
             if (sender is ToolStripMenuItem option && option.Tag is bool is_surrender)
             {
-                player.game_state = is_surrender ? Game_stats.surrender : Game_stats.draw;
-
+                player.end_game(is_surrender ? Game_stats.surrender : Game_stats.draw);
                 check_for_game_end();
             }
         }

@@ -22,7 +22,7 @@ public class Chess_bot : Chess_player_root
         else first_move = new();
     }
 
-    public Chess_bot() : base(Turns.black) => bot_level = Bot_levels.easy;
+    public Chess_bot() : base(Turns.black) => bot_level = default;
 
     private static double calculate_move_value(Chess_cell[,] board, Move move, Turns color, Move_bools bools, Draw_data draw_data)
     {
@@ -271,12 +271,12 @@ public class Chess_bot : Chess_player_root
 
     public Move get_response_for(Move player_move)
     {
-        if (turn == color_of_this || game_state != Game_stats.gos || player_move.is_None())
+        if (turn == color_of_this || is_game_over || player_move.is_None())
             return new();
 
         check_and_make_move(player_move);
 
-        if (game_state != Game_stats.gos)
+        if (is_game_over)
             return new();
 
         Move response = get_move();
