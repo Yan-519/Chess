@@ -30,7 +30,7 @@ public class Draw_data
         public void Push(Move move)
         {
             head_index++;
-            is_made_loop = head_index == SIZE;
+            is_made_loop = head_index == SIZE || is_made_loop;
             head_index %= SIZE;
             moves[head_index] = move;
             if (is_made_loop)
