@@ -12,7 +12,7 @@ namespace Chess_project
         private Bot_levels bot_level = default;
         private Turns player_turn;
 
-        private Turns random_color => new Turns[2] { Turns.black, Turns.white }[random.Next(2)];
+        private static Turns random_color => new Turns[2] { Turns.black, Turns.white }[random.Next(2)];
 
         public Start_Page()
         {
