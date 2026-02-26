@@ -64,30 +64,19 @@ public static class Chess_tools
     {
         static bool is_able_to_castling_her(Chess_cell[,] board, Pos[] is_safe, Pos[] is_clear, bool is_rook_moved, Turns color, Pos corner)
         {
-            static bool is_path_clear(Chess_cell[,] board, Pos[] positions)
-            {
-                foreach (Pos pos in positions)
-                    if (!board[pos.row, pos.col].is_None())
-                        return false;
-
-                return true;
-            }
-
-            static bool is_path_safe(Chess_cell[,] board, Pos[] positions, Turns color)
-            {
-                HashSet<Pos> attacks = get_attack_range_of(board, reverse(color));
-
-                foreach (Pos pos in positions)
-                    if (attacks.Contains(pos))
-                        return false;
-
-                return true;
-            }
-
             if (is_rook_moved || board[corner.row, corner.col].name != Piece_name.rook)
                 return false;
 
-            return is_path_safe(board, is_safe, color) && is_path_clear(board, is_clear);
+            Func<Pos[], bool> is_path_clear = positions =>
+                positions.All(pos => board[pos.row, pos.col].is_None());
+
+            Func<Pos[], bool> is_path_safe = positions =>
+            {
+                HashSet<Pos> attacks = get_attack_range_of(board, reverse(color));
+                return positions.All(pos => !attacks.Contains(pos));
+            };
+
+            return is_path_safe(is_safe) && is_path_clear(is_clear);
         }
 
         if (move_bools.is_left_rook_moved && move_bools.is_right_rook_moved || move_bools.is_king_moved)
@@ -120,12 +109,12 @@ public static class Chess_tools
 
     private static HashSet<Pos> get_attack_range_of(Chess_cell[,] board, Turns color)
     {
-        HashSet<Pos> attack_positions = [];
+        List<Pos> attack_positions = [];
         foreach (Chess_cell cell in board)
             if (cell.color == color)
-                attack_positions.UnionWith(cell.get_range_attack(board).Select(m => m.to));
+                attack_positions.AddRange(cell.get_range_attack(board).Select(m => m.to));
 
-        return attack_positions;
+        return attack_positions.ToHashSet();
     }
 
     public static bool is_this_color_in_check(Chess_cell[,] board, Turns color)
@@ -191,12 +180,17 @@ public static class Chess_tools
         return new();
     }
 
-    public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(Chess_cell[,] board, Move move, Move_bools bools, Draw_data draw_data, Turns color)
+    public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(
+        Chess_cell[,] board, 
+        Move move, Move_bools bools, Draw_data draw_data, Turns color)
         => generate_future_board(board, move, bools, draw_data, color, Piece_name.None, true);
 
 
 
-    public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(Chess_cell[,] board, Move move, Move_bools bools, Draw_data draw_data, Turns color, Piece_name change_pawn_to, bool is_bot = false)
+    public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(
+        Chess_cell[,] board, 
+        Move move, Move_bools bools, Draw_data draw_data, Turns color,
+        Piece_name change_pawn_to, bool is_bot = false)
     {
         Chess_cell[,] future_board = new Chess_cell[8, 8];
 
@@ -222,7 +216,8 @@ public static class Chess_tools
                     if (move.from.row == start_position && move.to.row == end_position)
                         future_board[move.to.row, move.to.col].is_pawn_double_moved = true;
                 }
-                else future_board[move.to.row, move.to.col].name = is_bot ? Chess_bot.find_best_pawn_transformation(future_board, move.to, color, draw_data) : change_pawn_to;
+                else future_board[move.to.row, move.to.col].name = is_bot ? 
+                        Chess_bot.find_best_pawn_transformation(future_board, move.to, color, draw_data) : change_pawn_to;
                 break;
 
             case Piece_name.rook:

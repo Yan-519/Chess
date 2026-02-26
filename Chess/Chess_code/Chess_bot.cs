@@ -27,10 +27,10 @@ public class Chess_bot : Chess_player_root
     private static double calculate_move_value(Chess_cell[,] board, Move move, Turns color, Move_bools bools, Draw_data draw_data)
     {
         (Chess_cell[,] future, _, Draw_data new_draw_data) = generate_future_board(board, move, bools, draw_data, color);
-        return calculate_move_value(future, color, new_draw_data, board[move.from.row, move.from.col].name == Piece_name.king);
+        return calculate_board_value(future, color, new_draw_data, board[move.from.row, move.from.col].name == Piece_name.king);
     }
 
-    private static double calculate_move_value(Chess_cell[,] future, Turns color, Draw_data draw_data, bool is_king_move)
+    private static double calculate_board_value(Chess_cell[,] future, Turns color, Draw_data draw_data, bool is_king_move)
     {
         static double calculate_board_value_diff(Chess_cell[,] board, Turns color, bool is_king_move)
         {
@@ -106,7 +106,7 @@ public class Chess_bot : Chess_player_root
         foreach (Move bot_move in bot_moves)
         {
             (Chess_cell[,] future_board_first, _, Draw_data new_draw_data) = future_board_from_original[bot_move];
-            double current_score = calculate_move_value(future_board_first, color, new_draw_data, board[bot_move.from.row, bot_move.from.col].name == Piece_name.king);
+            double current_score = calculate_board_value(future_board_first, color, new_draw_data, board[bot_move.from.row, bot_move.from.col].name == Piece_name.king);
 
             if (current_score == double.MaxValue)
                 return bot_move;
@@ -255,7 +255,7 @@ public class Chess_bot : Chess_player_root
             else if (is_this_color_in_check(temp, reverse(color)))
                 return name;
 
-            double current_score = calculate_move_value(temp, color, draw_data, false);
+            double current_score = calculate_board_value(temp, color, draw_data, false);
             if (current_score == double.MaxValue)
                 return name;
 
