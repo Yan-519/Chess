@@ -4,7 +4,7 @@ namespace Chess;
 
 public class Chess_player(Turns player_color = default) : Chess_player_root(player_color)
 {
-    public Chess_cell[,] board => (Chess_cell[,])_board.Clone();
+    public Chess_cell[,] board => copy_board(board);
 
     public bool make_bot_move(Move move) => check_and_make_move(move, true, true);
 

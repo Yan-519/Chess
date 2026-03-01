@@ -42,6 +42,17 @@ public static class Chess_tools
         return board;
     }
 
+    public static Chess_cell[,] copy_board(Chess_cell[,] board)
+    {
+        Chess_cell[,] new_board = new Chess_cell[8, 8];
+
+        for (int row = 0; row < 8; row++)
+            for (int column = 0; column < 8; column++)
+                new_board[row, column] = board[row, column].copy();
+
+        return new_board;
+    }
+
     private static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color, Draw_data draw_data) => get_all_moves(board, color, default, draw_data);
 
     public static HashSet<Move> get_all_moves(Chess_cell[,] board, Turns color, Move_bools move_bools, Draw_data draw_data)
@@ -200,11 +211,7 @@ public static class Chess_tools
         Move move, Move_bools bools, Draw_data draw_data, Turns color,
         Piece_name change_pawn_to, bool is_bot = false)
     {
-        Chess_cell[,] future_board = new Chess_cell[8, 8];
-
-        for (int row = 0; row < 8; row++)
-            for (int column = 0; column < 8; column++)
-                future_board[row, column] = board[row, column].copy();
+        Chess_cell[,] future_board = copy_board(board);
 
         if (future_board[move.to.row, move.to.col].is_None() && future_board[move.from.row, move.from.col].name == Piece_name.pawn)
         {
@@ -221,6 +228,7 @@ public static class Chess_tools
                 if (move.to.row != 0 && move.to.row != 7)
                 {
                     (int start_position, int end_position) = (color == Turns.white) ? (6, 4) : (1, 3);
+
                     if (move.from.row == start_position && move.to.row == end_position)
                         future_board[move.to.row, move.to.col].is_pawn_double_moved = true;
                 }
