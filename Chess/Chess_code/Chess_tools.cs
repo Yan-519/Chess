@@ -119,7 +119,7 @@ public static class Chess_tools
 
     public static bool is_this_color_in_check(Chess_cell[,] board, Turns color)
     {
-        foreach(Chess_cell cell in board)
+        foreach (Chess_cell cell in board)
             if (cell.name == Piece_name.king && cell.color == color)
                 return get_attack_range_of(board, reverse(color)).Contains(cell.pos);
 
@@ -129,31 +129,40 @@ public static class Chess_tools
     public static bool is_this_color_in_checkmate(Chess_cell[,] board, Turns color, Draw_data draw_data)
         => is_this_color_in_check(board, color) && get_all_moves(board, color, draw_data).Count == 0;
 
-    private static bool is_board_contains_only(Chess_cell[,] board, HashSet<Piece_name> names, Turns color)
+    public static bool dead_position_pieces(Chess_cell[,] board)
     {
-        foreach(Chess_cell cell in board)
+        static bool is_board_contains_only(Chess_cell[,] board, HashSet<Piece_name> names, Turns color)
         {
-            if (cell.is_None() || cell.color != color)
-                continue;
+            foreach (Chess_cell cell in board)
+            {
+                if (cell.is_None() || cell.color != color)
+                    continue;
 
-            else if (names.Contains(cell.name))
-                names.Remove(cell.name);
+                else if (names.Contains(cell.name))
+                    names.Remove(cell.name);
 
-            else return false;
+                else return false;
+            }
+            return names.Count == 0;
         }
-        return names.Count == 0;
+
+        HashSet<Piece_name>[] dead_combination =
+            [
+                [Piece_name.king, Piece_name.bishop],
+                [Piece_name.king, Piece_name.knight],
+                [Piece_name.king]
+            ];
+
+        foreach (HashSet<Piece_name> white in dead_combination)
+            foreach (HashSet<Piece_name> black in dead_combination)
+                if (is_board_contains_only(board, white, Turns.white) && is_board_contains_only(board, black, Turns.black))
+                    return true;
+
+        return false;
     }
 
     public static bool is_draw(Chess_cell[,] board, Turns color, Draw_data draw_data)
-        => get_all_moves(board, color, draw_data).Count == 0 && !is_this_color_in_check(board, color) || draw_data.is_draw ||
-
-            (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.white) ||
-             is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.white) ||
-             is_board_contains_only(board, [Piece_name.king],                    Turns.white)) &&
-
-            (is_board_contains_only(board, [Piece_name.king, Piece_name.bishop], Turns.black) ||
-             is_board_contains_only(board, [Piece_name.king, Piece_name.knight], Turns.black) ||
-             is_board_contains_only(board, [Piece_name.king],                    Turns.black));
+        => get_all_moves(board, color, draw_data).Count == 0 && !is_this_color_in_check(board, color) || draw_data.is_draw || dead_position_pieces(board);
 
     public static bool is_valid_move(Chess_cell[,] board, Move move, Turns color, Move_bools bools, Draw_data draw_data)
         => !is_this_color_in_check(generate_future_board(board, move, bools, draw_data, color).Item1, color);
@@ -181,14 +190,14 @@ public static class Chess_tools
     }
 
     public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(
-        Chess_cell[,] board, 
+        Chess_cell[,] board,
         Move move, Move_bools bools, Draw_data draw_data, Turns color)
         => generate_future_board(board, move, bools, draw_data, color, Piece_name.None, true);
 
 
 
     public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(
-        Chess_cell[,] board, 
+        Chess_cell[,] board,
         Move move, Move_bools bools, Draw_data draw_data, Turns color,
         Piece_name change_pawn_to, bool is_bot = false)
     {
@@ -216,13 +225,13 @@ public static class Chess_tools
                     if (move.from.row == start_position && move.to.row == end_position)
                         future_board[move.to.row, move.to.col].is_pawn_double_moved = true;
                 }
-                else future_board[move.to.row, move.to.col].name = is_bot ? 
+                else future_board[move.to.row, move.to.col].name = is_bot ?
                         Chess_bot.find_best_pawn_transformation(future_board, move.to, color, draw_data) : change_pawn_to;
                 break;
 
             case Piece_name.rook:
                 if (future_board[0, 0].name != Piece_name.rook || future_board[7, 0].name != Piece_name.rook)
-                    bools = bools with { is_left_rook_moved =  true };
+                    bools = bools with { is_left_rook_moved = true };
 
                 else if (future_board[0, 7].name != Piece_name.rook || future_board[7, 7].name != Piece_name.rook)
                     bools = bools with { is_right_rook_moved = true };

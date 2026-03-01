@@ -30,7 +30,7 @@ public class Chess_player(Turns player_color = default) : Chess_player_root(play
 
     public void end_game(Game_stats state)
     {
-        if(state == Game_stats.draw || state == Game_stats.surrender)
+        if (state == Game_stats.draw || state == Game_stats.surrender)
             game_state = state;
     }
 }

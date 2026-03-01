@@ -27,7 +27,7 @@ public class Chess_player_root(Turns player_color)
     {
         Turns color = is_opponent_color ? color_of_opponent : turn;
 
-        if (is_game_over|| move.is_None() || color != turn)
+        if (is_game_over || move.is_None() || color != turn)
             return false;
 
         Move_bools move_bools = get_move_bools(color);
@@ -40,7 +40,7 @@ public class Chess_player_root(Turns player_color)
         if (color == Turns.white)
             white_move_bools = move_bools;
         else
-             black_move_bools = move_bools;
+            black_move_bools = move_bools;
 
         turn = reverse(turn);
 

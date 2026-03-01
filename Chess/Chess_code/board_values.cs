@@ -28,7 +28,7 @@ public static class Board_values
             { 0.3, 0.25,  0.2,  0.2,  0.2,  0.2, 0.25, 0.3}
     };
 
-    public static readonly double[] pawn_modifiers_to_down = [ 0.35, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05, 0.00 ];
+    public static readonly double[] pawn_modifiers_to_down = [0.35, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05, 0.00];
 
 
     public static readonly double[,] rook_modifier = new double[8, 8]

@@ -6,7 +6,7 @@ namespace Chess_project
     {
         private static readonly Random random = new();
 
-        private enum Switch_player_color {white, black, random}
+        private enum Switch_player_color { white, black, random }
 
         private bool is_bot = false;
         private Bot_levels bot_level = default;
@@ -25,7 +25,7 @@ namespace Chess_project
             normal_bar.Tag = Bot_levels.normal;
             hard_bar.Tag = Bot_levels.hard;
 
-            random_bar.Tag =  Switch_player_color.random;
+            random_bar.Tag = Switch_player_color.random;
             white_bar.Tag = Switch_player_color.white;
             black_bar.Tag = Switch_player_color.black;
         }

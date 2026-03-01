@@ -15,13 +15,13 @@ public class Chess_cell
         {
             action = value switch
             {
-                Piece_name.None   => new None_piece(),
-                Piece_name.pawn   => new Pawn(),
+                Piece_name.None => new None_piece(),
+                Piece_name.pawn => new Pawn(),
                 Piece_name.knight => new Knight(),
                 Piece_name.bishop => new Bishop(),
-                Piece_name.rook   => new Rook(),
-                Piece_name.queen  => new Queen(),
-                Piece_name.king   => new King(),
+                Piece_name.rook => new Rook(),
+                Piece_name.queen => new Queen(),
+                Piece_name.king => new King(),
                 _ => throw new ArgumentOutOfRangeException(nameof(value), "Invalid piece name")
             };
 

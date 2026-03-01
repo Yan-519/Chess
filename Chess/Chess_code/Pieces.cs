@@ -184,7 +184,7 @@ class Rook : None_piece
 
 class Knight : None_piece
 {
-    public Knight() :base(3) { }
+    public Knight() : base(3) { }
 
     public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
     {
@@ -219,7 +219,7 @@ class Queen : None_piece
     public Queen() : base(9) { }
 
     public override HashSet<Move> get_list_of_moves(Chess_cell[,] board, Pos pos, Turns color, bool is_range)
-        =>  new Rook().get_list_of_moves(board, pos, color, is_range).Union(
+        => new Rook().get_list_of_moves(board, pos, color, is_range).Union(
             new Bishop().get_list_of_moves(board, pos, color, is_range)).ToHashSet();
 }
 
