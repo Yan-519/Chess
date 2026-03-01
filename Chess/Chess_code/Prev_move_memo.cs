@@ -13,7 +13,7 @@
         public Prev_move_memo()
         {
             for (int i = 0; i < SIZE; i++)
-                moves[i] = new();
+                moves[i] = new Move();
         }
 
         private Prev_move_memo(Prev_move_memo prev)

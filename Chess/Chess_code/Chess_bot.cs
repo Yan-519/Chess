@@ -19,7 +19,7 @@ public class Chess_bot : Chess_player_root
             first_move = get_move();
             check_and_make_move(first_move);
         }
-        else first_move = new();
+        else first_move = new Move();
     }
 
     public Chess_bot() : base(Turns.black) => bot_level = default;
@@ -83,7 +83,7 @@ public class Chess_bot : Chess_player_root
             bot_moves = get_all_moves(board, color, move_bools, draw_data);
 
             if (bot_moves.Count == 0)
-                return new();
+                return new Move();
             else if (bot_moves.Count == 1)
                 return bot_moves.ToArray().First();
 
@@ -132,7 +132,7 @@ public class Chess_bot : Chess_player_root
             bot_moves = get_all_moves(board, color, bot_move_bools, draw_data);
 
             if (bot_moves.Count == 0)
-                return new();
+                return new Move();
             else if (bot_moves.Count == 1)
                 return bot_moves.ToArray().First();
 
@@ -185,7 +185,7 @@ public class Chess_bot : Chess_player_root
         HashSet<Move> bot_moves = get_all_moves(board, color, bot_move_bools, draw_data);
 
         if (bot_moves.Count == 0)
-            return new();
+            return new Move();
         else if (bot_moves.Count == 1)
             return bot_moves.ToArray().First();
 
@@ -272,12 +272,12 @@ public class Chess_bot : Chess_player_root
     public Move get_response_for(Move player_move)
     {
         if (turn == color_of_this || is_game_over || player_move.is_None())
-            return new();
+            return new Move();
 
         check_and_make_move(player_move);
 
         if (is_game_over)
-            return new();
+            return new Move();
 
         Move response = get_move();
 
@@ -291,6 +291,6 @@ public class Chess_bot : Chess_player_root
         Bot_levels.easy => get_easy_move(_board, color_of_this, get_move_bools(color_of_this), draw_data),
         Bot_levels.normal => get_normal_move(_board, color_of_this, get_move_bools(color_of_this), get_move_bools(color_of_opponent), draw_data, [], []),
         Bot_levels.hard => get_best_move(_board, color_of_this, get_move_bools(color_of_this), get_move_bools(color_of_opponent), draw_data),
-        _ => new(),
+        _ => new Move(),
     };
 }

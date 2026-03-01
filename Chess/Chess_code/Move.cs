@@ -7,7 +7,7 @@
         public Move(Pos to, Pos from)
             => (this.from, this.to) = (from.copy(), to.copy());
 
-        public Move() : this(new(), new())
+        public Move() : this(new Pos(), new Pos())
         { }
 
         public static bool operator ==(Move a, Move b) => a.from == b.from && a.to == b.to;

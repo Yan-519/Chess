@@ -35,7 +35,7 @@ namespace Chess_project
             this.start_Page = start_Page;
 
             player = new Chess_player();
-            bot = new();
+            bot = new Chess_bot();
 
             InitBoard(Turns.white);
         }

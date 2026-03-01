@@ -186,14 +186,13 @@ public static class Chess_tools
                 return new(new(0, 3), new(0, 0));
         }
 
-        return new();
+        return new Move();
     }
 
     public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(
         Chess_cell[,] board,
         Move move, Move_bools bools, Draw_data draw_data, Turns color)
         => generate_future_board(board, move, bools, draw_data, color, Piece_name.None, true);
-
 
 
     public static (Chess_cell[,], Move_bools, Draw_data) generate_future_board(
