@@ -32,6 +32,7 @@
             endGameToolStripMenuItem = new ToolStripMenuItem();
             draw_bar_op = new ToolStripMenuItem();
             surrender_bar_op = new ToolStripMenuItem();
+            move_draw_op = new ToolStripMenuItem();
             top_bar.SuspendLayout();
             SuspendLayout();
             // 
@@ -45,7 +46,7 @@
             // 
             // endGameToolStripMenuItem
             // 
-            endGameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { draw_bar_op, surrender_bar_op });
+            endGameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { draw_bar_op, surrender_bar_op, move_draw_op });
             endGameToolStripMenuItem.Name = "endGameToolStripMenuItem";
             endGameToolStripMenuItem.Size = new Size(72, 20);
             endGameToolStripMenuItem.Text = "End game";
@@ -63,6 +64,14 @@
             surrender_bar_op.Size = new Size(180, 22);
             surrender_bar_op.Text = "Surrender";
             surrender_bar_op.Click += game_end_option_click;
+            // 
+            // move_draw_op
+            // 
+            move_draw_op.Name = "move_draw_op";
+            move_draw_op.Size = new Size(180, 22);
+            move_draw_op.Text = "50 move draw";
+            move_draw_op.Visible = false;
+            move_draw_op.Click += game_end_option_click;
             // 
             // Game_form
             // 
@@ -89,5 +98,6 @@
         private ToolStripMenuItem endGameToolStripMenuItem;
         private ToolStripMenuItem draw_bar_op;
         private ToolStripMenuItem surrender_bar_op;
+        private ToolStripMenuItem move_draw_op;
     }
 }

@@ -6,7 +6,9 @@
 
         private Prev_move_memo prev_moves = new();
         private int half_moves = 0;
-        public bool is_draw { get; private set; } = false;
+
+        public bool is_draw => prev_moves.is_repeated;
+        public bool is_a_lot_of_moves => half_moves >= HALF_MOVES_FOR_DRAW;
 
         public Draw_data() { }
 
@@ -14,16 +16,10 @@
         {
             this.prev_moves = prev_moves;
             this.half_moves = half_moves;
-            is_draw = half_moves >= HALF_MOVES_FOR_DRAW || prev_moves.is_repeated;
-        }
-
-        public void next(Move move)
-        {
-            half_moves++;
-            prev_moves.Push(move);
-            is_draw = half_moves >= HALF_MOVES_FOR_DRAW || prev_moves.is_repeated;
         }
 
         public Draw_data next_get(Move move) => new(prev_moves.Push_get(move), half_moves + 1);
+
+        public void reset() => half_moves = 0;
     }
 }

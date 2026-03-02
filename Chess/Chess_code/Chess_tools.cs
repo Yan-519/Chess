@@ -212,6 +212,7 @@ public static class Chess_tools
         Piece_name change_pawn_to, bool is_bot = false)
     {
         Chess_cell[,] future_board = copy_board(board);
+        bool is_reset_draw = false;
 
         if (future_board[move.to.row, move.to.col].is_None() && future_board[move.from.row, move.from.col].name == Piece_name.pawn)
         {
@@ -219,6 +220,9 @@ public static class Chess_tools
             if (temp.isin_board_range() && future_board[temp.row, temp.col].name == Piece_name.pawn && future_board[temp.row, temp.col].color != color)
                 future_board[temp.row, temp.col].name = Piece_name.None;
         }
+
+        is_reset_draw |= !future_board[move.to.row, move.to.col].is_None();
+        is_reset_draw |= future_board[move.from.row, move.from.col].name == Piece_name.pawn;
 
         future_board[move.from.row, move.from.col].move_to(ref future_board[move.to.row, move.to.col]);
 
@@ -264,6 +268,11 @@ public static class Chess_tools
             default: break;
         }
 
-        return (future_board, bools, draw_data.next_get(move));
+        Draw_data next = draw_data.next_get(move);
+        if (is_reset_draw)
+            next.reset();
+
+
+        return (future_board, bools, next);
     }
 }

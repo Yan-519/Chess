@@ -26,6 +26,8 @@ namespace Chess_project
 
         private Pos move_pieces = new();
 
+        private bool is_showed_that_a_lot_of_moves_for_draw = false;
+
         public Game_form(Start_Page start_Page)
         {
             InitializeComponent();
@@ -62,6 +64,7 @@ namespace Chess_project
         {
             surrender_bar_op.Tag = true;
             draw_bar_op.Tag = false;
+            move_draw_op.Tag = false;
 
             TableLayoutPanel main_grid = new()
             {
@@ -202,6 +205,26 @@ namespace Chess_project
         {
             Text = $"The turn of the {player.turn} player";
             Chess_cell[,] board = player.board;
+
+            if (player.is_a_lot_of_moves)
+            {
+                if (!is_showed_that_a_lot_of_moves_for_draw)
+                {
+                    is_showed_that_a_lot_of_moves_for_draw = true;
+
+                    MessageBox.Show(
+                        "There are a lot of moves for draw, each player can choose a Draw on their turn",
+                        "Draw info",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                move_draw_op.Visible = true;
+            }
+            else
+            {
+                is_showed_that_a_lot_of_moves_for_draw = false;
+                move_draw_op.Visible = false;
+            }
 
             for (int row = 0; row < 8; row++)
             {
