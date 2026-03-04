@@ -29,7 +29,7 @@
         {
             head_index = ++head_index % SIZE;
 
-            is_made_loop |= head_index == 0;
+            is_made_loop |= head_index == SIZE-1;
 
             moves[head_index] = move;
             if (is_made_loop)
