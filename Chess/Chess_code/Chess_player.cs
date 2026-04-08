@@ -4,7 +4,7 @@ namespace Chess;
 
 public class Chess_player(Turns player_color = default) : Chess_player_root(player_color)
 {
-    public Chess_cell[,] board => copy_board(board);
+    public Chess_cell[,] board => copy_board(_board);
 
     public bool is_a_lot_of_moves => draw_data.is_a_lot_of_moves;
 
